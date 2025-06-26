@@ -35,14 +35,14 @@ export function ConsultantCard({ consultant }: { consultant: Consultant }) {
             <p className="text-sm text-white/80">{consultant.specialty}</p>
           </div>
           <Badge variant={consultant.status === 'available' ? "secondary" : "outline"} className={`absolute top-3 right-3 ${consultant.status === 'available' ? 'text-secondary-foreground' : 'bg-black/50 text-white backdrop-blur-sm border-white/50'}`}>
-            {consultant.status === 'available' ? 'Online Now' : 'Busy'}
+            {consultant.status === 'available' ? '상담 가능' : '상담 중'}
           </Badge>
         </div>
         <CardContent className="p-4 space-y-2">
           <div className="flex items-center gap-1">
             <Star className="w-4 h-4 fill-secondary text-secondary" />
             <span className="font-semibold">{consultant.rating.toFixed(1)}</span>
-            <span className="text-xs text-muted-foreground">({consultant.reviewCount} reviews)</span>
+            <span className="text-xs text-muted-foreground">({consultant.reviewCount} 리뷰)</span>
           </div>
           <div className="flex flex-wrap gap-1.5">
             {consultant.keywords.slice(0, 3).map(keyword => (

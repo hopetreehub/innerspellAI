@@ -5,8 +5,8 @@ import { AppFooter } from '@/components/layout/footer';
 import { Toaster } from "@/components/ui/toaster";
 
 export const metadata: Metadata = {
-  title: 'Innerspellhub',
-  description: 'A trusted spiritual hub connecting your inner self and hidden stories.',
+  title: '이너스펠허브',
+  description: '당신의 내면과 숨겨진 이야기를 연결하는 신뢰할 수 있는 영적 허브입니다.',
 };
 
 export default function RootLayout({
@@ -15,7 +15,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className="dark">
+    <html lang="ko" className="dark">
       <head>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
