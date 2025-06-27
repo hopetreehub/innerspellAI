@@ -12,6 +12,7 @@ import { Input } from '@/components/ui/input';
 import { Star, ArrowLeft, ImagePlus } from 'lucide-react';
 import Link from 'next/link';
 import { useToast } from '@/hooks/use-toast';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 
 export default function NewReviewPage() {
   const params = useParams();
@@ -19,10 +20,13 @@ export default function NewReviewPage() {
   const { toast } = useToast();
   const id = typeof params.id === 'string' ? params.id : '';
   const consultant = getConsultantById(id);
+  
   const [rating, setRating] = useState(0);
   const [hoverRating, setHoverRating] = useState(0);
   const [comment, setComment] = useState('');
   const [imageFile, setImageFile] = useState<File | null>(null);
+  const [consultingStyle, setConsultingStyle] = useState('');
+  const [consultingField, setConsultingField] = useState('');
 
   if (!consultant) {
     notFound();
@@ -46,6 +50,15 @@ export default function NewReviewPage() {
       return;
     }
 
+    if (!consultingStyle || !consultingField) {
+      toast({
+        title: '입력 오류',
+        description: '상담 평가 설문을 완료해주세요.',
+        variant: 'destructive',
+      });
+      return;
+    }
+
     if (!comment.trim()) {
       toast({
         title: '입력 오류',
@@ -56,7 +69,7 @@ export default function NewReviewPage() {
     }
 
     // In a real application, you would send the data to your backend here.
-    console.log('Submitting review:', { rating, comment, imageFile, consultantId: id });
+    console.log('Submitting review:', { rating, comment, imageFile, consultantId: id, consultingStyle, consultingField });
 
     toast({
       title: '후기 등록 완료',
@@ -68,6 +81,22 @@ export default function NewReviewPage() {
       router.push(`/consultant/${consultant.id}`);
     }, 1500);
   };
+
+  const styleOptions = [
+    { value: '👍 현실적이에요', id: 'style-1' },
+    { value: '❤️ 친절해요', id: 'style-2' },
+    { value: '😊 따뜻해요', id: 'style-3' },
+    { value: '🧠 논리적이에요', id: 'style-4' },
+    { value: '🗣️ 직설적이에요', id: 'style-5' },
+  ];
+
+  const fieldOptions = [
+    { value: '연애/궁합', id: 'field-1' },
+    { value: '직업/사업', id: 'field-2' },
+    { value: '금전/재물', id: 'field-3' },
+    { value: '인간관계', id: 'field-4' },
+    { value: '기타', id: 'field-5' },
+  ];
 
   return (
     <div className="container mx-auto px-4 py-8 md:py-12 max-w-2xl">
@@ -85,7 +114,7 @@ export default function NewReviewPage() {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <form className="space-y-6" onSubmit={handleSubmit}>
+          <form className="space-y-8" onSubmit={handleSubmit}>
             <div className="space-y-2">
               <Label>별점</Label>
               <div
@@ -104,6 +133,40 @@ export default function NewReviewPage() {
                     onMouseEnter={() => setHoverRating(i + 1)}
                   />
                 ))}
+              </div>
+            </div>
+
+            {/* Survey Section */}
+            <div className="space-y-6 rounded-lg border bg-card p-4 md:p-6">
+              <div>
+                <h3 className="font-semibold text-foreground">상담 상세 평가</h3>
+                <p className="text-sm text-muted-foreground mt-1">
+                  더 나은 추천을 위해 상담 경험에 대해 알려주세요.
+                </p>
+              </div>
+              
+              <div className="space-y-3">
+                <Label>상담 스타일은 어떠셨나요?</Label>
+                <RadioGroup value={consultingStyle} onValueChange={setConsultingStyle} className="grid grid-cols-2 gap-x-4 gap-y-2">
+                   {styleOptions.map(option => (
+                      <div key={option.id} className="flex items-center space-x-2">
+                        <RadioGroupItem value={option.value} id={option.id} />
+                        <Label htmlFor={option.id} className="font-normal cursor-pointer">{option.value}</Label>
+                      </div>
+                   ))}
+                </RadioGroup>
+              </div>
+
+              <div className="space-y-3">
+                <Label>어떤 분야에 대해 상담받으셨나요?</Label>
+                <RadioGroup value={consultingField} onValueChange={setConsultingField} className="grid grid-cols-2 gap-x-4 gap-y-2">
+                  {fieldOptions.map(option => (
+                      <div key={option.id} className="flex items-center space-x-2">
+                        <RadioGroupItem value={option.value} id={option.id} />
+                        <Label htmlFor={option.id} className="font-normal cursor-pointer">{option.value}</Label>
+                      </div>
+                   ))}
+                </RadioGroup>
               </div>
             </div>
 
