@@ -69,21 +69,18 @@ const chatbotFlow = ai.defineFlow(
     try {
         const aiConfig = await getAiConfig();
 
-        // The previous implementation defined a prompt dynamically on every call,
-        // which is not standard practice. We now use ai.generate directly.
         const systemPrompt = aiConfig.systemPrompt.replace(
             '{{{json consultants}}}',
             JSON.stringify(input.consultants)
         );
 
-        // Convert messages to Genkit's format and separate history from the latest prompt.
         const history = input.messages.map(msg => ({
             role: msg.role === 'assistant' ? ('model' as const) : ('user' as const),
             content: [{ text: msg.content }]
         }));
 
         const { output } = await ai.generate({
-            model: ai.model(aiConfig.model),
+            model: aiConfig.model,
             history: history,
             prompt: '', // We pass the full conversation in `history`, so the main prompt is empty.
             system: systemPrompt,
