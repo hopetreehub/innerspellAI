@@ -3,3 +3,4 @@ config();
 
 import '@/ai/flows/consultant-recommendation-flow.ts';
 import '@/ai/flows/daily-spell-flow.ts';
+import '@/ai/tools/consultant-tool.ts';
