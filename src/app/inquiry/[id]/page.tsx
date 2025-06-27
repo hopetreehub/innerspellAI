@@ -1,7 +1,7 @@
 
 'use client';
 
-import { notFound } from 'next/navigation';
+import { notFound, useParams } from 'next/navigation';
 import { getConsultantById } from '@/lib/consultants';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -12,8 +12,10 @@ import { Checkbox } from '@/components/ui/checkbox';
 import Link from 'next/link';
 import { ArrowLeft } from 'lucide-react';
 
-export default function InquiryPage({ params }: { params: { id: string } }) {
-  const consultant = getConsultantById(params.id);
+export default function InquiryPage() {
+  const params = useParams();
+  const id = typeof params.id === 'string' ? params.id : '';
+  const consultant = getConsultantById(id);
 
   if (!consultant) {
     notFound();

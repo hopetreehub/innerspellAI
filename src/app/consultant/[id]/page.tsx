@@ -3,7 +3,7 @@
 
 import Image from 'next/image';
 import Link from 'next/link';
-import { notFound } from 'next/navigation';
+import { notFound, useParams } from 'next/navigation';
 import { getConsultantById } from '@/lib/consultants';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -31,8 +31,10 @@ function StarRating({ rating, reviewCount }: { rating: number, reviewCount: numb
   );
 }
 
-export default function ConsultantDetailPage({ params }: { params: { id: string } }) {
-  const consultant = getConsultantById(params.id);
+export default function ConsultantDetailPage() {
+  const params = useParams();
+  const id = typeof params.id === 'string' ? params.id : '';
+  const consultant = getConsultantById(id);
 
   if (!consultant) {
     notFound();
