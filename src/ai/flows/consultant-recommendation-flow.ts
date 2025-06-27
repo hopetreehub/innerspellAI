@@ -60,10 +60,11 @@ const chatbotFlow = ai.defineFlow(
     outputSchema: ChatbotOutputSchema,
   },
   async (input) => {
-    if (!process.env.GEMINI_API_KEY && !process.env.GOOGLE_API_KEY) {
-        console.error("GEMINI/GOOGLE API Key not found in environment variables.");
+    // API 키가 설정되었는지 명확하게 확인합니다.
+    if (!process.env.GOOGLE_API_KEY) {
+        console.error("GOOGLE_API_KEY not found in environment variables.");
         return {
-            response: 'AI 기능을 설정하는 중 오류가 발생했습니다. 관리자에게 문의해주세요. (API 키가 설정되지 않았습니다.)'
+            response: 'AI 기능 설정에 문제가 있습니다. 관리자에게 문의하여 API 키를 설정해주세요.'
         };
     }
 
@@ -100,7 +101,10 @@ const chatbotFlow = ai.defineFlow(
         return output;
     } catch (error) {
         console.error("Chatbot flow error:", error);
-        return { response: "죄송합니다. AI 서비스 연결에 실패했습니다. 네트워크 상태를 확인하거나 잠시 후 다시 시도해주세요." };
+        // API 키가 유효하지 않은 경우를 대비해 더 구체적인 오류 메시지를 반환합니다.
+        return { 
+            response: "죄송합니다. AI 서비스 연결에 실패했습니다. API 키가 유효하지 않거나 관련 클라우드 서비스가 활성화되지 않았을 수 있습니다. 관리자에게 문의하여 AI 설정을 확인해주세요." 
+        };
     }
   }
 );
