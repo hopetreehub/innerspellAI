@@ -62,21 +62,27 @@ const chatbotFlow = ai.defineFlow(
   async (input) => {
     try {
         const aiConfig = await getAiConfig();
+        const systemPrompt = aiConfig.systemPrompt;
 
-        const systemPrompt = aiConfig.systemPrompt.replace(
-            '{{{json consultants}}}',
-            JSON.stringify(input.consultants)
-        );
+        // 상담사 데이터를 대화기록의 일부로 주입합니다.
+        const consultantDataMessage = {
+          role: 'user' as const,
+          content: [
+            { text: `This is a system message. Do not display this to the user. Here is the list of available consultants in JSON format that you must use for recommendations: ${JSON.stringify(input.consultants)}` }
+          ]
+        };
 
-        const history = input.messages.map(msg => ({
+        const conversationHistory = input.messages.map(msg => ({
             role: msg.role === 'assistant' ? ('model' as const) : ('user' as const),
             content: [{ text: msg.content }]
         }));
 
+        // 전체 대화 기록을 구성합니다.
+        const history = [consultantDataMessage, ...conversationHistory];
+
         const result = await ai.generate({
             model: aiConfig.model,
             history: history,
-            prompt: '', // We pass the full conversation in `history`, so the main prompt is empty.
             system: systemPrompt,
             output: {
                 schema: ChatbotOutputSchema,
@@ -87,15 +93,13 @@ const chatbotFlow = ai.defineFlow(
         const output = result.output;
         
         if (!output) {
-            return { response: "죄송합니다. AI가 유효한 응답을 생성하지 못했습니다. 다시 시도해주세요." };
+            console.error("AI output is null or doesn't match the expected schema.", result);
+            return { response: "죄송합니다. AI가 유효한 응답을 생성하지 못했습니다. 응답 형식이 올바르지 않을 수 있습니다. 다시 시도해주세요." };
         }
         
         return output;
     } catch (error) {
         console.error("Chatbot flow error:", error);
-        if (error instanceof Error) {
-          console.error("Detailed Error Message:", error.message);
-        }
         return { 
             response: "죄송합니다. AI 서비스 연결에 실패했습니다. API 키가 유효하지 않거나 관련 클라우드 서비스가 활성화되지 않았을 수 있습니다. 관리자에게 문의하여 AI 설정을 확인해주세요." 
         };
