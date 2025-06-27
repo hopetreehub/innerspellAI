@@ -1,16 +1,17 @@
+
 'use client';
 
 import { useState, useRef, useEffect, startTransition } from 'react';
-import type { Consultant } from '@/app/page';
 import { getChatbotResponse } from '@/ai/flows/consultant-recommendation-flow';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Bot, User, CircleDashed } from 'lucide-react';
 import { ConsultantCard } from './consultant-card';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
+import type { Consultant } from '@/types/consultant';
 
 type Message = {
   id: string;
@@ -52,7 +53,6 @@ export function Chatbot({ consultants }: { consultants: Consultant[] }) {
 
     const newMessages = [...messages, userMessage];
     if (isOptionClick) {
-      // Remove options from the last bot message
       newMessages[newMessages.length - 2].options = undefined;
     }
     setMessages(newMessages);
@@ -62,8 +62,7 @@ export function Chatbot({ consultants }: { consultants: Consultant[] }) {
       try {
         const history = newMessages.map(({ id, isRecommendation, ...rest }) => rest);
         const result = await getChatbotResponse({ messages: history, consultants });
-
-        // Simple regex to find bracketed options
+        
         const optionRegex = /\[([^\]]+)\]/g;
         const extractedOptions = [...result.response.matchAll(optionRegex)].map(match => match[1]);
         const cleanedResponse = result.response.replace(optionRegex, '').trim();
@@ -94,7 +93,7 @@ export function Chatbot({ consultants }: { consultants: Consultant[] }) {
   };
 
   return (
-    <Card className="w-full shadow-2xl shadow-primary/10">
+    <Card className="w-full shadow-2xl shadow-primary/10 bg-black/30 backdrop-blur-md border-white/20 text-white">
       <CardHeader className="text-center">
         <CardTitle className="font-headline text-2xl">AI 상담사 추천</CardTitle>
       </CardHeader>
@@ -108,9 +107,9 @@ export function Chatbot({ consultants }: { consultants: Consultant[] }) {
                   className={`flex items-start gap-3 ${message.role === 'user' ? 'justify-end' : ''}`}
                 >
                   {message.role === 'assistant' && (
-                    <Avatar className="w-8 h-8 border">
-                      <AvatarFallback>
-                        <Bot className="w-5 h-5 text-primary" />
+                    <Avatar className="w-8 h-8 border-white/30">
+                      <AvatarFallback className="bg-transparent">
+                        <Bot className="w-5 h-5 text-secondary" />
                       </AvatarFallback>
                     </Avatar>
                   )}
@@ -118,13 +117,13 @@ export function Chatbot({ consultants }: { consultants: Consultant[] }) {
                     className={`rounded-xl p-3 max-w-sm ${
                       message.role === 'user'
                         ? 'bg-primary text-primary-foreground'
-                        : 'bg-card-foreground/5'
+                        : 'bg-white/10'
                     }`}
                   >
                     {message.isRecommendation ? (
                         <RecommendationContent message={message.content} consultants={consultants} />
                     ) : (
-                        <ReactMarkdown remarkPlugins={[remarkGfm]} className="prose prose-sm dark:prose-invert break-words">
+                        <ReactMarkdown remarkPlugins={[remarkGfm]} className="prose prose-sm prose-invert break-words">
                             {message.content}
                         </ReactMarkdown>
                     )}
@@ -137,7 +136,7 @@ export function Chatbot({ consultants }: { consultants: Consultant[] }) {
                             variant="outline"
                             size="sm"
                             onClick={() => handleSendMessage(option, true)}
-                            className="bg-background/70"
+                            className="bg-white/10 border-white/20 hover:bg-white/20 text-white"
                           >
                             {option}
                           </Button>
@@ -146,8 +145,8 @@ export function Chatbot({ consultants }: { consultants: Consultant[] }) {
                     )}
                   </div>
                   {message.role === 'user' && (
-                    <Avatar className="w-8 h-8 border">
-                      <AvatarFallback>
+                    <Avatar className="w-8 h-8 border-white/30">
+                      <AvatarFallback className="bg-transparent">
                         <User className="w-5 h-5" />
                       </AvatarFallback>
                     </Avatar>
@@ -156,14 +155,14 @@ export function Chatbot({ consultants }: { consultants: Consultant[] }) {
               ))}
               {isLoading && (
                  <div className="flex items-start gap-3">
-                    <Avatar className="w-8 h-8 border">
-                        <AvatarFallback>
-                        <Bot className="w-5 h-5 text-primary" />
+                    <Avatar className="w-8 h-8 border-white/30">
+                        <AvatarFallback className="bg-transparent">
+                          <Bot className="w-5 h-5 text-secondary" />
                         </AvatarFallback>
                     </Avatar>
-                    <div className="rounded-xl p-3 max-w-sm bg-card-foreground/5 flex items-center gap-2">
+                    <div className="rounded-xl p-3 max-w-sm bg-white/10 flex items-center gap-2">
                         <CircleDashed className="w-4 h-4 animate-spin" />
-                        <p className="text-sm text-muted-foreground">AI가 답변을 생각하고 있어요...</p>
+                        <p className="text-sm text-white/70">AI가 답변을 생각하고 있어요...</p>
                     </div>
                 </div>
               )}
@@ -179,21 +178,22 @@ function RecommendationContent({ message, consultants }: { message: string, cons
     const recommendedConsultant = consultants.find(c => message.includes(c.name));
 
     if (!recommendedConsultant) {
-        return <ReactMarkdown remarkPlugins={[remarkGfm]} className="prose prose-sm dark:prose-invert break-words">{message}</ReactMarkdown>;
+        return <ReactMarkdown remarkPlugins={[remarkGfm]} className="prose prose-sm prose-invert break-words">{message}</ReactMarkdown>;
     }
     
-    // Split message to insert the card
     const parts = message.split(recommendedConsultant.name);
     const beforeText = parts[0];
     const afterText = recommendedConsultant.name + parts.slice(1).join(recommendedConsultant.name);
 
     return (
         <div className="space-y-3">
-             <ReactMarkdown remarkPlugins={[remarkGfm]} className="prose prose-sm dark:prose-invert break-words">{beforeText}</ReactMarkdown>
+             <ReactMarkdown remarkPlugins={[remarkGfm]} className="prose prose-sm prose-invert break-words">{beforeText}</ReactMarkdown>
             <div className="my-4">
                 <ConsultantCard consultant={recommendedConsultant} />
             </div>
-            <ReactMarkdown remarkPlugins={[remarkGfm]} className="prose prose-sm dark:prose-invert break-words">{afterText.replace(recommendedConsultant.name, '')}</ReactMarkdown>
+            <ReactMarkdown remarkPlugins={[remarkGfm]} className="prose prose-sm prose-invert break-words">{afterText.replace(recommendedConsultant.name, '')}</ReactMarkdown>
         </div>
     )
 }
+
+    

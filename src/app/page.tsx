@@ -1,3 +1,7 @@
+
+'use client';
+
+import { useState } from 'react';
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from '@/components/ui/carousel';
 import { ConsultantCard } from '@/components/consultant-card';
 import { DailySpellCard } from '@/components/daily-spell-card';
@@ -5,18 +9,27 @@ import { Button } from '@/components/ui/button';
 import Image from 'next/image';
 import { Badge } from '@/components/ui/badge';
 import { Chatbot } from '@/components/chatbot';
+import type { Consultant as ConsultantType } from '@/types/consultant';
+import { ArrowRight } from 'lucide-react';
 
-export type Consultant = {
-  id: string;
-  name: string;
-  specialty: string;
-  image: string;
-  rating: number;
-  reviewCount: number;
-  status: 'available' | 'busy';
-  keywords: string[];
-  dataAiHint?: string;
-};
+const consultants: ConsultantType[] = [
+  { id: '1', name: '세라피나 문', specialty: '타로', image: '/images/con1.png', rating: 4.9, reviewCount: 281, status: 'available', keywords: ['타로', '연애', '미래', '여성', '따뜻함', '프리미엄'], dataAiHint: 'woman mystic' },
+  { id: '2', name: '오리온 세이지', specialty: '점성술', image: '/images/con2.png', rating: 4.8, reviewCount: 194, status: 'available', keywords: ['점성술', '출생 차트', '궁합', '남성', '논리적', '합리적'], dataAiHint: 'man telescope' },
+  { id: '3', name: '루나 아이리스', specialty: '해몽', image: '/images/con3.png', rating: 4.9, reviewCount: 156, status: 'busy', keywords: ['해몽', '상징', '잠재의식', '여성', '신비주의', '프리미엄'], dataAiHint: 'woman sleeping' },
+  { id: '4', name: '재스퍼 베일', specialty: '수비학', image: '/images/con4.png', rating: 4.7, reviewCount: 121, status: 'available', keywords: ['수비학', '인생 경로', '운명', '남성', '분석적', '합리적'], dataAiHint: 'numbers code' },
+  { id: '5', name: '아리아 위스퍼', specialty: '신점', image: '/images/con5.png', rating: 5.0, reviewCount: 98, status: 'busy', keywords: ['신점', '영적 안내', '조상', '여성', '직설적', '프리미엄'], dataAiHint: 'candle light' },
+  { id: '6', name: '카이 솔스티스', specialty: '손금', image: '/images/con6.png', rating: 4.6, reviewCount: 85, status: 'available', keywords: ['손금', '생명선', '감정선', '남성', '따뜻함', '합리적'], dataAiHint: 'open palm' },
+  { id: '7', name: '혜인 스님', specialty: '사주', image: '/images/con7.png', rating: 4.9, reviewCount: 312, status: 'available', keywords: ['사주', '명리학', '직업운', '남성', '근엄함', '프리미엄'], dataAiHint: 'monk meditating' },
+  { id: '8', name: '이로운', specialty: '작명', image: '/images/con8.png', rating: 4.8, reviewCount: 250, status: 'available', keywords: ['작명', '개명', '상호명', '남성', '논리적', '프리미엄'], dataAiHint: 'man writing' },
+  { id: '9', name: '김보살', specialty: '신점', image: '/images/con9.png', rating: 4.9, reviewCount: 420, status: 'busy', keywords: ['신점', '사업운', '금전운', '여성', '직설적', '명성'], dataAiHint: 'korean shaman' },
+  { id: '10', name: '하늘빛', specialty: '타로', image: '/images/con10.png', rating: 4.7, reviewCount: 180, status: 'available', keywords: ['타로', '인간관계', '심리', '여성', '공감적', '합리적'], dataAiHint: 'woman tarot' },
+  { id: '11', name: '도현', specialty: '풍수지리', image: '/images/con11.png', rating: 4.8, reviewCount: 140, status: 'available', keywords: ['풍수', '인테리어', '이사', '남성', '분석적', '프리미엄'], dataAiHint: 'man compass' },
+  { id: '12', name: '소정', specialty: '명상', image: '/images/con12.png', rating: 4.9, reviewCount: 110, status: 'available', keywords: ['명상', '마음챙김', '스트레스', '여성', '따뜻함', '합리적'], dataAiHint: 'woman meditating' },
+  { id: '13', name: '백도사', specialty: '관상', image: '/images/con13.png', rating: 4.7, reviewCount: 195, status: 'available', keywords: ['관상', '첫인상', '인생조언', '남성', '직설적', '경험많음'], dataAiHint: 'wise old man' },
+  { id: '14', name: '아라', specialty: '타로', image: '/images/con14.png', rating: 4.8, reviewCount: 220, status: 'busy', keywords: ['타로', '학업', '시험', '여성', '논리적', '합리적'], dataAiHint: 'young woman books' },
+  { id: '15', name: '정도령', specialty: '신점', image: '/images/con15.png', rating: 4.9, reviewCount: 350, status: 'available', keywords: ['신점', '결혼', '궁합', '남성', '따뜻함', '명성'], dataAiHint: 'korean young shaman' },
+  { id: '16', name: '유진', specialty: '사주', image: '/images/con16.png', rating: 4.8, reviewCount: 280, status: 'available', keywords: ['사주', '신년운세', '건강운', '여성', '분석적', '합리적'], dataAiHint: 'woman looking calendar' },
+];
 
 type Content = {
   id: string;
@@ -26,25 +39,6 @@ type Content = {
   dataAiHint?: string;
 };
 
-const consultants: Consultant[] = [
-  { id: '1', name: '세라피나 문', specialty: '타로', image: '/con1.png', rating: 4.9, reviewCount: 281, status: 'available', keywords: ['타로', '연애', '미래', '여성', '따뜻함', '프리미엄'], dataAiHint: 'woman mystic' },
-  { id: '2', name: '오리온 세이지', specialty: '점성술', image: '/con2.png', rating: 4.8, reviewCount: 194, status: 'available', keywords: ['점성술', '출생 차트', '궁합', '남성', '논리적', '합리적'], dataAiHint: 'man telescope' },
-  { id: '3', name: '루나 아이리스', specialty: '해몽', image: '/con3.png', rating: 4.9, reviewCount: 156, status: 'busy', keywords: ['해몽', '상징', '잠재의식', '여성', '신비주의', '프리미엄'], dataAiHint: 'woman sleeping' },
-  { id: '4', name: '재스퍼 베일', specialty: '수비학', image: '/con4.png', rating: 4.7, reviewCount: 121, status: 'available', keywords: ['수비학', '인생 경로', '운명', '남성', '분석적', '합리적'], dataAiHint: 'numbers code' },
-  { id: '5', name: '아리아 위스퍼', specialty: '신점', image: '/con5.png', rating: 5.0, reviewCount: 98, status: 'busy', keywords: ['신점', '영적 안내', '조상', '여성', '직설적', '프리미엄'], dataAiHint: 'candle light' },
-  { id: '6', name: '카이 솔스티스', specialty: '손금', image: '/con6.png', rating: 4.6, reviewCount: 85, status: 'available', keywords: ['손금', '생명선', '감정선', '남성', '따뜻함', '합리적'], dataAiHint: 'open palm' },
-  { id: '7', name: '혜인 스님', specialty: '사주', image: '/con7.png', rating: 4.9, reviewCount: 312, status: 'available', keywords: ['사주', '명리학', '직업운', '남성', '근엄함', '프리미엄'], dataAiHint: 'monk meditating' },
-  { id: '8', name: '이로운', specialty: '작명', image: '/con8.png', rating: 4.8, reviewCount: 250, status: 'available', keywords: ['작명', '개명', '상호명', '남성', '논리적', '프리미엄'], dataAiHint: 'man writing' },
-  { id: '9', name: '김보살', specialty: '신점', image: '/con9.png', rating: 4.9, reviewCount: 420, status: 'busy', keywords: ['신점', '사업운', '금전운', '여성', '직설적', '명성'], dataAiHint: 'korean shaman' },
-  { id: '10', name: '하늘빛', specialty: '타로', image: '/con10.png', rating: 4.7, reviewCount: 180, status: 'available', keywords: ['타로', '인간관계', '심리', '여성', '공감적', '합리적'], dataAiHint: 'woman tarot' },
-  { id: '11', name: '도현', specialty: '풍수지리', image: '/con11.png', rating: 4.8, reviewCount: 140, status: 'available', keywords: ['풍수', '인테리어', '이사', '남성', '분석적', '프리미엄'], dataAiHint: 'man compass' },
-  { id: '12', name: '소정', specialty: '명상', image: '/con12.png', rating: 4.9, reviewCount: 110, status: 'available', keywords: ['명상', '마음챙김', '스트레스', '여성', '따뜻함', '합리적'], dataAiHint: 'woman meditating' },
-  { id: '13', name: '백도사', specialty: '관상', image: '/con13.png', rating: 4.7, reviewCount: 195, status: 'available', keywords: ['관상', '첫인상', '인생조언', '남성', '직설적', '경험많음'], dataAiHint: 'wise old man' },
-  { id: '14', name: '아라', specialty: '타로', image: '/con14.png', rating: 4.8, reviewCount: 220, status: 'busy', keywords: ['타로', '학업', '시험', '여성', '논리적', '합리적'], dataAiHint: 'young woman books' },
-  { id: '15', name: '정도령', specialty: '신점', image: '/con15.png', rating: 4.9, reviewCount: 350, status: 'available', keywords: ['신점', '결혼', '궁합', '남성', '따뜻함', '명성'], dataAiHint: 'korean young shaman' },
-  { id: '16', name: '유진', specialty: '사주', image: '/con16.png', rating: 4.8, reviewCount: 280, status: 'available', keywords: ['사주', '신년운세', '건강운', '여성', '분석적', '합리적'], dataAiHint: 'woman looking calendar' },
-];
-
 const latestContent: Content[] = [
     { id: '1', title: "수성 역행: 생존 가이드", category: "점성술", image: "https://placehold.co/800x450.png", dataAiHint: 'planets orbit' },
     { id: '2', title: "타로의 연인 카드 이해하기", category: "타로", image: "https://placehold.co/800x450.png", dataAiHint: 'lovers hands' },
@@ -52,22 +46,45 @@ const latestContent: Content[] = [
     { id: '4', title: "초심자를 위한 명상 가이드", category: "웰빙", image: "https://placehold.co/800x450.png", dataAiHint: 'serene landscape' },
 ];
 
-export default async function Home() {
-  const userName = "탐험가";
+export default function Home() {
+  const [isChatbotOpen, setIsChatbotOpen] = useState(false);
   const availableConsultants = consultants.filter(c => c.status === 'available');
 
   return (
     <div className="container mx-auto px-4 py-8 md:py-12 space-y-16">
       
-      <section className="text-center">
-        <h1 className="font-headline text-3xl md:text-5xl font-bold tracking-tight leading-tight">
-          당신만의 운명의 길잡이를<br />AI가 찾아드려요
-        </h1>
-        <p className="text-muted-foreground mt-4 text-lg max-w-2xl mx-auto">
-          몇 가지 질문에 답하고, 당신의 고민에 꼭 맞는 최고의 상담사를 추천받으세요.
-        </p>
-        <div className="mt-8 max-w-3xl mx-auto">
-           <Chatbot consultants={consultants} />
+      <section className="relative w-full h-[500px] md:h-[600px] rounded-2xl overflow-hidden flex items-center justify-center text-center text-white p-4">
+        <Image 
+          src="https://placehold.co/1600x900.png"
+          alt="신비로운 우주 배경"
+          fill
+          className="object-cover"
+          data-ai-hint="mystical portal"
+          priority
+        />
+        <div className="absolute inset-0 bg-gradient-to-br from-black/60 via-primary/50 to-black/70" />
+        <div className="relative z-10">
+          {!isChatbotOpen ? (
+            <div className="animate-fade-in-up">
+              <h1 className="font-headline text-4xl md:text-6xl font-bold tracking-tight leading-tight">
+                AI와 함께<br />운명의 길잡이를 찾아보세요
+              </h1>
+              <p className="text-white/80 mt-4 text-lg max-w-2xl mx-auto">
+                몇 가지 질문에 답하고, 당신의 고민에 꼭 맞는 최고의 상담사를 추천받으세요.
+              </p>
+              <Button 
+                size="lg" 
+                className="mt-8 bg-white/10 backdrop-blur-sm border-white/20 border hover:bg-white/20 text-white text-lg px-8 py-6 rounded-full transition-all hover:scale-105"
+                onClick={() => setIsChatbotOpen(true)}
+              >
+                상담 시작하기 <ArrowRight className="ml-2" />
+              </Button>
+            </div>
+          ) : (
+            <div className="w-full max-w-3xl mx-auto animate-fade-in">
+              <Chatbot consultants={consultants} />
+            </div>
+          )}
         </div>
       </section>
 
@@ -128,3 +145,5 @@ export default async function Home() {
     </div>
   );
 }
+
+    

@@ -1,20 +1,11 @@
+
 import Image from 'next/image';
 import Link from 'next/link';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Star } from 'lucide-react';
+import type { Consultant } from '@/types/consultant';
 
-type Consultant = {
-  id: string;
-  name: string;
-  specialty: string;
-  image: string;
-  rating: number;
-  reviewCount: number;
-  status: 'available' | 'busy';
-  keywords: string[];
-  dataAiHint?: string;
-};
 
 export function ConsultantCard({ consultant }: { consultant: Consultant }) {
   return (
@@ -54,3 +45,5 @@ export function ConsultantCard({ consultant }: { consultant: Consultant }) {
     </Link>
   );
 }
+
+    
