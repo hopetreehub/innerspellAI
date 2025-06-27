@@ -62,11 +62,10 @@ export default function Home() {
       
       <section className="relative w-full h-[500px] md:h-[600px] rounded-2xl overflow-hidden flex items-center justify-center text-center text-white p-4">
         <Image 
-          src="https://placehold.co/1600x900.png"
+          src="/images/hero.jpg"
           alt="신비로운 우주 배경"
           fill
           className="object-cover animate-slow-zoom"
-          data-ai-hint="mystical galaxy"
           priority
         />
         <div className="absolute inset-0 bg-gradient-to-r from-primary/30 via-purple-900/40 to-black/70 animate-gradient-pulse" style={{ backgroundSize: '200% 200%' }} />
