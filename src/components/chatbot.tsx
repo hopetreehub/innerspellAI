@@ -49,7 +49,7 @@ export function Chatbot({ consultants }: { consultants: Consultant[] }) {
 
   useEffect(() => {
     const lastMessage = messages[messages.length - 1];
-    if (inputRef.current && !isLoading && lastMessage.role === 'assistant' && !lastMessage.options) {
+    if (inputRef.current && !isLoading && lastMessage.role === 'assistant') {
       inputRef.current.focus();
     }
   }, [messages, isLoading]);
@@ -72,10 +72,7 @@ export function Chatbot({ consultants }: { consultants: Consultant[] }) {
     }
     setMessages(newMessages);
     setIsLoading(true);
-
-    if (!isOptionClick) {
-      setInputValue('');
-    }
+    setInputValue('');
 
     startTransition(async () => {
       try {
@@ -124,7 +121,7 @@ export function Chatbot({ consultants }: { consultants: Consultant[] }) {
   };
 
   const lastMessage = messages[messages.length - 1];
-  const showInput = !isLoading && lastMessage.role === 'assistant' && !lastMessage.options && !lastMessage.recommendations;
+  const showInput = !isLoading && lastMessage.role === 'assistant' && !lastMessage.recommendations;
 
   return (
     <Card className="w-full h-full shadow-2xl shadow-primary/10 bg-black/40 backdrop-blur-xl border border-white/20 text-white rounded-2xl flex flex-col">
@@ -238,6 +235,7 @@ export function Chatbot({ consultants }: { consultants: Consultant[] }) {
                             placeholder="자세한 고민을 이야기해주세요..."
                             className="bg-white/10 border-white/20 text-white placeholder:text-white/60 focus:ring-secondary min-h-[80px] resize-none pr-14"
                             autoComplete="off"
+                            rows={3}
                         />
                         <Button type="submit" size="icon" className="bg-secondary hover:bg-secondary/90 flex-shrink-0 absolute right-3 bottom-3 h-9 w-9">
                             <Send className="h-4 w-4" />
