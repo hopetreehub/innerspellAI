@@ -1,3 +1,5 @@
+'use client';
+
 import Image from 'next/image';
 import Link from 'next/link';
 import { Card } from '@/components/ui/card';
@@ -8,6 +10,12 @@ import type { Consultant } from '@/types/consultant';
 import { cn } from '@/lib/utils';
 
 export function ConsultantCard({ consultant }: { consultant: Consultant }) {
+  const handleCallClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    window.location.href = `tel:060-700-1234,${consultant.phoneId}`;
+  };
+
   return (
     <Link href={`/consultant/${consultant.id}`} className="block group">
       <Card className="w-full overflow-hidden transition-all group-hover:shadow-primary/20 group-hover:shadow-lg group-hover:-translate-y-1 flex h-full">
@@ -51,7 +59,7 @@ export function ConsultantCard({ consultant }: { consultant: Consultant }) {
                 <Wallet className="w-3 h-3"/>
                 <span>30초당 {consultant.price.toLocaleString()}원</span>
              </div>
-            <Button className="w-full h-8 text-sm" size="sm">
+            <Button className="w-full h-8 text-sm" size="sm" onClick={handleCallClick}>
               <Phone className="mr-1.5 h-3.5 w-3.5" /> 전화상담
             </Button>
           </div>

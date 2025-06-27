@@ -1,4 +1,3 @@
-
 'use client';
 
 import Image from 'next/image';
@@ -66,9 +65,11 @@ export default function ConsultantDetailPage() {
           </Card>
           <Card>
             <CardContent className="p-4 space-y-3">
-              <Button size="lg" className="w-full text-lg h-12">
-                <Phone className="mr-2"/>
-                전화상담 신청
+              <Button size="lg" className="w-full text-lg h-12" asChild>
+                <Link href={`tel:060-700-1234,${consultant.phoneId}`}>
+                  <Phone className="mr-2"/>
+                  전화상담
+                </Link>
               </Button>
               <Button size="lg" variant="secondary" className="w-full text-lg h-12" asChild>
                  <Link href={`/inquiry/${consultant.id}`}>
