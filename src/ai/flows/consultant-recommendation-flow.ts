@@ -1,3 +1,4 @@
+
 'use server';
 
 /**
@@ -20,7 +21,7 @@ export type ChatbotInput = z.infer<typeof ChatbotInputSchema>;
 
 
 const ChatbotOutputSchema = z.object({
-  response: z.string().describe("사용자에게 보여줄 AI의 대화 응답."),
+  response: z.string(),
 });
 export type ChatbotOutput = z.infer<typeof ChatbotOutputSchema>;
 
@@ -36,46 +37,35 @@ const chatbotFlow = ai.defineFlow(
     outputSchema: ChatbotOutputSchema,
   },
   async (input) => {
-    const systemPrompt = `You are Innerspell AI, a friendly and expert assistant. Your goal is to help users.
+    const systemPrompt = `You are Innerspell AI, a friendly and expert assistant. Your goal is to help users find the right consultant.
 You must follow a two-step process.
 
 **Process:**
-1.  **Gather Concern:** First, understand the user's primary concern area.
-2.  **Gather Style:** Second, ask for their preferred consultation style.
-
-**Rules:**
-*   **Check History:** Before asking a question, review the conversation history. Never ask for information you already have.
-*   **Ask Concern First:** If you don't know the concern, ask by presenting these options:
-    - 연애/재회/궁합
-    - 직장/사업/재물
-    - 가족/인간관계
-    - 학업/진로
-    - 심리/건강
-    - 기타
-*   **Ask Style Second:** If you have the concern but not the style, ask by presenting these options:
+1.  **Gather Concern:** The user will provide this in their first message (e.g., "연애/재회/궁합").
+2.  **Gather Style:** After the user has stated their concern, you MUST ask for their preferred consultation style. Present these options clearly as a list:
     - 따뜻하고 공감하는 스타일
     - 명쾌하고 직설적인 스타일
     - 논리적이고 분석적인 스타일
-*   **Once you have both pieces of information, simply say "정보를 모두 확인했습니다. 이제 가장 적합한 상담사를 찾아드릴게요."**
+
+**Rules:**
+*   **Check History:** Before asking a question, review the conversation history. Never ask for information you already have.
+*   **Once you have both the concern and the style, you MUST say "정보를 모두 확인했습니다. 이제 가장 적합한 상담사를 찾아드릴게요." and stop asking questions.**
 `;
 
     try {
       const history = input.messages;
 
-      const { output } = await ai.generate({
+      const { text } = await ai.generate({
         model: 'googleai/gemini-1.5-flash-latest',
         system: systemPrompt,
         prompt: history,
-        output: {
-          schema: ChatbotOutputSchema,
-        },
       });
 
-      if (!output) {
-        throw new Error("AI did not return a valid response.");
+      if (!text) {
+        throw new Error("AI did not return a valid text response.");
       }
-      // Since we simplified the output, we ensure it conforms to the expected structure.
-      return { response: output.response };
+
+      return { response: text };
 
     } catch (error) {
       console.error("Error in chatbotFlow:", error);
