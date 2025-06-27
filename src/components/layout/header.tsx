@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
-import { Search, Bell, CircleUserRound } from 'lucide-react';
+import { Search } from 'lucide-react';
+import { ThemeToggle } from '@/components/theme-toggle';
 
 export function AppHeader() {
   return (
@@ -25,7 +26,7 @@ export function AppHeader() {
             <span className="font-bold font-headline text-lg">Innerspellhub</span>
           </Link>
           <nav className="hidden items-center gap-6 text-sm md:flex">
-            <Link href="#" className="transition-colors hover:text-foreground/80 text-foreground/60">상담가</Link>
+            <Link href="#" className="transition-colors hover:text-foreground/80 text-foreground/60">상담사</Link>
             <Link href="#" className="transition-colors hover:text-foreground/80 text-foreground/60">콘텐츠</Link>
             <Link href="#" className="transition-colors hover:text-foreground/80 text-foreground/60">커뮤니티</Link>
           </nav>
@@ -34,11 +35,9 @@ export function AppHeader() {
           <Button variant="ghost" size="icon">
             <Search className="h-5 w-5" />
           </Button>
-          <Button variant="ghost" size="icon">
-            <Bell className="h-5 w-5" />
-          </Button>
-          <Button variant="ghost" size="icon">
-            <CircleUserRound className="h-5 w-5" />
+          <ThemeToggle />
+          <Button asChild variant="outline">
+            <Link href="/login">로그인</Link>
           </Button>
         </div>
       </div>

@@ -1,49 +1,47 @@
-
 import Image from 'next/image';
-import Link from 'next/link';
-import { Card, CardContent } from '@/components/ui/card';
+import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Star } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Star, Phone } from 'lucide-react';
 import type { Consultant } from '@/types/consultant';
-
 
 export function ConsultantCard({ consultant }: { consultant: Consultant }) {
   return (
-    <Link href="#" className="block group">
-      <Card className="w-full overflow-hidden transition-all group-hover:shadow-primary/20 group-hover:shadow-lg group-hover:-translate-y-1">
-        <div className="relative aspect-[1/1]">
-          <Image
-            src={consultant.image}
-            alt={consultant.name}
-            fill
-            className="object-cover transition-transform duration-300 group-hover:scale-105"
-            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-            data-ai-hint={consultant.dataAiHint}
-          />
-          <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent" />
-          <div className="absolute bottom-2 left-3 right-3 text-white">
-            <h3 className="font-headline text-lg font-semibold truncate">{consultant.name}</h3>
-            <p className="text-sm text-white/80">{consultant.specialty}</p>
+    <Card className="w-full overflow-hidden transition-all hover:shadow-primary/20 hover:shadow-lg hover:-translate-y-1 flex">
+      <div className="relative w-1/3 aspect-[3/4]">
+        <Image
+          src={consultant.image}
+          alt={consultant.name}
+          fill
+          className="object-cover"
+          sizes="(max-width: 768px) 33vw, (max-width: 1200px) 15vw, 10vw"
+          data-ai-hint={consultant.dataAiHint}
+        />
+      </div>
+      <div className="p-4 flex flex-col justify-between flex-1 w-2/3">
+        <div>
+          <div className="flex items-center justify-between">
+            <h3 className="font-headline text-base font-semibold truncate leading-tight">{consultant.name}</h3>
+            <Badge variant={consultant.status === 'available' ? "secondary" : "outline"} className={`text-xs ${consultant.status === 'available' ? 'text-secondary-foreground' : 'bg-black/50 text-white backdrop-blur-sm border-white/50'}`}>
+              {consultant.status === 'available' ? '가능' : '상담중'}
+            </Badge>
           </div>
-          <Badge variant={consultant.status === 'available' ? "secondary" : "outline"} className={`absolute top-3 right-3 ${consultant.status === 'available' ? 'text-secondary-foreground' : 'bg-black/50 text-white backdrop-blur-sm border-white/50'}`}>
-            {consultant.status === 'available' ? '상담 가능' : '상담 중'}
-          </Badge>
-        </div>
-        <CardContent className="p-4 space-y-2">
-          <div className="flex items-center gap-1">
-            <Star className="w-4 h-4 fill-secondary text-secondary" />
-            <span className="font-semibold">{consultant.rating.toFixed(1)}</span>
-            <span className="text-xs text-muted-foreground">({consultant.reviewCount} 리뷰)</span>
+          <p className="text-sm text-muted-foreground mt-0.5">[{consultant.phoneId}] {consultant.specialty}</p>
+          <div className="flex items-center gap-1 mt-1">
+            <Star className="w-3 h-3 fill-secondary text-secondary" />
+            <span className="font-semibold text-sm">{consultant.rating.toFixed(1)}</span>
+            <span className="text-xs text-muted-foreground">({consultant.reviewCount})</span>
           </div>
-          <div className="flex flex-wrap gap-1.5">
-            {consultant.keywords.slice(0, 3).map(keyword => (
+          <div className="flex flex-wrap gap-1 mt-2">
+            {consultant.keywords.slice(0, 2).map(keyword => (
               <Badge key={keyword} variant="outline" className="text-xs font-normal">{keyword}</Badge>
             ))}
           </div>
-        </CardContent>
-      </Card>
-    </Link>
+        </div>
+        <Button className="w-full mt-3" size="sm">
+          <Phone className="mr-2 h-4 w-4" /> 전화상담
+        </Button>
+      </div>
+    </Card>
   );
 }
-
-    

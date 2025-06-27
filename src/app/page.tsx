@@ -2,7 +2,6 @@
 'use client';
 
 import { useState } from 'react';
-import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from '@/components/ui/carousel';
 import { ConsultantCard } from '@/components/consultant-card';
 import { DailySpellCard } from '@/components/daily-spell-card';
 import { Button } from '@/components/ui/button';
@@ -11,24 +10,25 @@ import { Badge } from '@/components/ui/badge';
 import { Chatbot } from '@/components/chatbot';
 import type { Consultant as ConsultantType } from '@/types/consultant';
 import { ArrowRight } from 'lucide-react';
+import { Pagination, PaginationContent, PaginationItem, PaginationPrevious, PaginationLink, PaginationNext } from '@/components/ui/pagination';
 
 const consultants: ConsultantType[] = [
-  { id: '1', name: '세라피나 문', specialty: '타로', image: '/images/con1.png', rating: 4.9, reviewCount: 281, status: 'available', keywords: ['타로', '연애', '미래', '여성', '따뜻함', '프리미엄'], dataAiHint: 'woman mystic' },
-  { id: '2', name: '오리온 세이지', specialty: '점성술', image: '/images/con2.png', rating: 4.8, reviewCount: 194, status: 'available', keywords: ['점성술', '출생 차트', '궁합', '남성', '논리적', '합리적'], dataAiHint: 'man telescope' },
-  { id: '3', name: '루나 아이리스', specialty: '해몽', image: '/images/con3.png', rating: 4.9, reviewCount: 156, status: 'busy', keywords: ['해몽', '상징', '잠재의식', '여성', '신비주의', '프리미엄'], dataAiHint: 'woman sleeping' },
-  { id: '4', name: '재스퍼 베일', specialty: '수비학', image: '/images/con4.png', rating: 4.7, reviewCount: 121, status: 'available', keywords: ['수비학', '인생 경로', '운명', '남성', '분석적', '합리적'], dataAiHint: 'numbers code' },
-  { id: '5', name: '아리아 위스퍼', specialty: '신점', image: '/images/con5.png', rating: 5.0, reviewCount: 98, status: 'busy', keywords: ['신점', '영적 안내', '조상', '여성', '직설적', '프리미엄'], dataAiHint: 'candle light' },
-  { id: '6', name: '카이 솔스티스', specialty: '손금', image: '/images/con6.png', rating: 4.6, reviewCount: 85, status: 'available', keywords: ['손금', '생명선', '감정선', '남성', '따뜻함', '합리적'], dataAiHint: 'open palm' },
-  { id: '7', name: '혜인 스님', specialty: '사주', image: '/images/con7.png', rating: 4.9, reviewCount: 312, status: 'available', keywords: ['사주', '명리학', '직업운', '남성', '근엄함', '프리미엄'], dataAiHint: 'monk meditating' },
-  { id: '8', name: '이로운', specialty: '작명', image: '/images/con8.png', rating: 4.8, reviewCount: 250, status: 'available', keywords: ['작명', '개명', '상호명', '남성', '논리적', '프리미엄'], dataAiHint: 'man writing' },
-  { id: '9', name: '김보살', specialty: '신점', image: '/images/con9.png', rating: 4.9, reviewCount: 420, status: 'busy', keywords: ['신점', '사업운', '금전운', '여성', '직설적', '명성'], dataAiHint: 'korean shaman' },
-  { id: '10', name: '하늘빛', specialty: '타로', image: '/images/con10.png', rating: 4.7, reviewCount: 180, status: 'available', keywords: ['타로', '인간관계', '심리', '여성', '공감적', '합리적'], dataAiHint: 'woman tarot' },
-  { id: '11', name: '도현', specialty: '풍수지리', image: '/images/con11.png', rating: 4.8, reviewCount: 140, status: 'available', keywords: ['풍수', '인테리어', '이사', '남성', '분석적', '프리미엄'], dataAiHint: 'man compass' },
-  { id: '12', name: '소정', specialty: '명상', image: '/images/con12.png', rating: 4.9, reviewCount: 110, status: 'available', keywords: ['명상', '마음챙김', '스트레스', '여성', '따뜻함', '합리적'], dataAiHint: 'woman meditating' },
-  { id: '13', name: '백도사', specialty: '관상', image: '/images/con13.png', rating: 4.7, reviewCount: 195, status: 'available', keywords: ['관상', '첫인상', '인생조언', '남성', '직설적', '경험많음'], dataAiHint: 'wise old man' },
-  { id: '14', name: '아라', specialty: '타로', image: '/images/con14.png', rating: 4.8, reviewCount: 220, status: 'busy', keywords: ['타로', '학업', '시험', '여성', '논리적', '합리적'], dataAiHint: 'young woman books' },
-  { id: '15', name: '정도령', specialty: '신점', image: '/images/con15.png', rating: 4.9, reviewCount: 350, status: 'available', keywords: ['신점', '결혼', '궁합', '남성', '따뜻함', '명성'], dataAiHint: 'korean young shaman' },
-  { id: '16', name: '유진', specialty: '사주', image: '/images/con16.png', rating: 4.8, reviewCount: 280, status: 'available', keywords: ['사주', '신년운세', '건강운', '여성', '분석적', '합리적'], dataAiHint: 'woman looking calendar' },
+  { id: '1', name: '세라피나 문', phoneId: 1023, specialty: '타로', image: '/images/con1.png', rating: 4.9, reviewCount: 281, status: 'available', keywords: ['타로', '연애', '미래', '여성', '따뜻함', '프리미엄'], dataAiHint: 'woman mystic' },
+  { id: '2', name: '오리온 세이지', phoneId: 2431, specialty: '점성술', image: '/images/con2.png', rating: 4.8, reviewCount: 194, status: 'available', keywords: ['점성술', '출생 차트', '궁합', '남성', '논리적', '합리적'], dataAiHint: 'man telescope' },
+  { id: '3', name: '루나 아이리스', phoneId: 387, specialty: '해몽', image: '/images/con3.png', rating: 4.9, reviewCount: 156, status: 'busy', keywords: ['해몽', '상징', '잠재의식', '여성', '신비주의', '프리미엄'], dataAiHint: 'woman sleeping' },
+  { id: '4', name: '재스퍼 베일', phoneId: 4409, specialty: '수비학', image: '/images/con4.png', rating: 4.7, reviewCount: 121, status: 'available', keywords: ['수비학', '인생 경로', '운명', '남성', '분석적', '합리적'], dataAiHint: 'numbers code' },
+  { id: '5', name: '아리아 위스퍼', phoneId: 512, specialty: '신점', image: '/images/con5.png', rating: 5.0, reviewCount: 98, status: 'busy', keywords: ['신점', '영적 안내', '조상', '여성', '직설적', '프리미엄'], dataAiHint: 'candle light' },
+  { id: '6', name: '카이 솔스티스', phoneId: 6675, specialty: '손금', image: '/images/con6.png', rating: 4.6, reviewCount: 85, status: 'available', keywords: ['손금', '생명선', '감정선', '남성', '따뜻함', '합리적'], dataAiHint: 'open palm' },
+  { id: '7', name: '혜인 스님', phoneId: 7100, specialty: '사주', image: '/images/con7.png', rating: 4.9, reviewCount: 312, status: 'available', keywords: ['사주', '명리학', '직업운', '남성', '근엄함', '프리미엄'], dataAiHint: 'monk meditating' },
+  { id: '8', name: '이로운', phoneId: 825, specialty: '작명', image: '/images/con8.png', rating: 4.8, reviewCount: 250, status: 'available', keywords: ['작명', '개명', '상호명', '남성', '논리적', '프리미엄'], dataAiHint: 'man writing' },
+  { id: '9', name: '김보살', phoneId: 9420, specialty: '신점', image: '/images/con9.png', rating: 4.9, reviewCount: 420, status: 'busy', keywords: ['신점', '사업운', '금전운', '여성', '직설적', '명성'], dataAiHint: 'korean shaman' },
+  { id: '10', name: '하늘빛', phoneId: 1018, specialty: '타로', image: '/images/con10.png', rating: 4.7, reviewCount: 180, status: 'available', keywords: ['타로', '인간관계', '심리', '여성', '공감적', '합리적'], dataAiHint: 'woman tarot' },
+  { id: '11', name: '도현', phoneId: 1144, specialty: '풍수지리', image: '/images/con11.png', rating: 4.8, reviewCount: 140, status: 'available', keywords: ['풍수', '인테리어', '이사', '남성', '분석적', '프리미엄'], dataAiHint: 'man compass' },
+  { id: '12', name: '소정', phoneId: 1211, specialty: '명상', image: '/images/con12.png', rating: 4.9, reviewCount: 110, status: 'available', keywords: ['명상', '마음챙김', '스트레스', '여성', '따뜻함', '합리적'], dataAiHint: 'woman meditating' },
+  { id: '13', name: '백도사', phoneId: 1395, specialty: '관상', image: '/images/con13.png', rating: 4.7, reviewCount: 195, status: 'available', keywords: ['관상', '첫인상', '인생조언', '남성', '직설적', '경험많음'], dataAiHint: 'wise old man' },
+  { id: '14', name: '아라', phoneId: 1422, specialty: '타로', image: '/images/con14.png', rating: 4.8, reviewCount: 220, status: 'busy', keywords: ['타로', '학업', '시험', '여성', '논리적', '합리적'], dataAiHint: 'young woman books' },
+  { id: '15', name: '정도령', phoneId: 1550, specialty: '신점', image: '/images/con15.png', rating: 4.9, reviewCount: 350, status: 'available', keywords: ['신점', '결혼', '궁합', '남성', '따뜻함', '명성'], dataAiHint: 'korean young shaman' },
+  { id: '16', name: '유진', phoneId: 1680, specialty: '사주', image: '/images/con16.png', rating: 4.8, reviewCount: 280, status: 'available', keywords: ['사주', '신년운세', '건강운', '여성', '분석적', '합리적'], dataAiHint: 'woman looking calendar' },
 ];
 
 type Content = {
@@ -48,7 +48,22 @@ const latestContent: Content[] = [
 
 export default function Home() {
   const [isChatbotOpen, setIsChatbotOpen] = useState(false);
-  const availableConsultants = consultants.filter(c => c.status === 'available');
+
+  // Pagination state
+  const [currentPage, setCurrentPage] = useState(1);
+  const consultantsPerPage = 8;
+  const totalPages = Math.ceil(consultants.length / consultantsPerPage);
+
+  const currentConsultants = consultants.slice(
+    (currentPage - 1) * consultantsPerPage,
+    currentPage * consultantsPerPage
+  );
+
+  const handlePageChange = (page: number) => {
+    if (page < 1 || page > totalPages) return;
+    setCurrentPage(page);
+  };
+
 
   return (
     <div className="container mx-auto px-4 py-8 md:py-12 space-y-16">
@@ -90,27 +105,37 @@ export default function Home() {
 
       <section>
         <div className="flex justify-between items-baseline">
-          <h2 className="font-headline text-3xl font-bold">지금 상담 가능</h2>
-          <Button variant="link" className="text-primary">전체 보기</Button>
+          <h2 className="font-headline text-3xl font-bold">상담사 전체보기</h2>
         </div>
-        <p className="text-muted-foreground mt-1">몇 분 안에 대화를 시작하세요.</p>
+        <p className="text-muted-foreground mt-1">당신에게 맞는 상담사를 찾아보세요.</p>
         
-        <Carousel
-          opts={{ align: "start", loop: true }}
-          className="w-full mt-6"
-        >
-          <CarouselContent>
-            {availableConsultants.map((consultant) => (
-              <CarouselItem key={consultant.id} className="md:basis-1/2 lg:basis-1/3 xl:basis-1/4">
-                <div className="p-1">
-                  <ConsultantCard consultant={consultant} />
-                </div>
-              </CarouselItem>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+            {currentConsultants.map((consultant) => (
+                <ConsultantCard key={consultant.id} consultant={consultant} />
             ))}
-          </CarouselContent>
-          <CarouselPrevious className="hidden lg:flex" />
-          <CarouselNext className="hidden lg:flex" />
-        </Carousel>
+        </div>
+
+        {totalPages > 1 && (
+          <div className="mt-8">
+              <Pagination>
+                  <PaginationContent>
+                      <PaginationItem>
+                          <PaginationPrevious href="#" onClick={(e) => { e.preventDefault(); handlePageChange(currentPage - 1); }} />
+                      </PaginationItem>
+                      {[...Array(totalPages)].map((_, i) => (
+                          <PaginationItem key={i}>
+                              <PaginationLink href="#" onClick={(e) => { e.preventDefault(); handlePageChange(i + 1); }} isActive={currentPage === i + 1}>
+                                  {i + 1}
+                              </PaginationLink>
+                          </PaginationItem>
+                      ))}
+                      <PaginationItem>
+                          <PaginationNext href="#" onClick={(e) => { e.preventDefault(); handlePageChange(currentPage + 1); }} />
+                      </PaginationItem>
+                  </PaginationContent>
+              </Pagination>
+          </div>
+        )}
       </section>
 
       <section>
