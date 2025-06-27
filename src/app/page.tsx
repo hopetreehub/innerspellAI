@@ -77,7 +77,7 @@ export default function Home() {
           data-ai-hint="mystical portal"
           priority
         />
-        <div className="absolute inset-0 bg-gradient-to-br from-black/60 via-primary/50 to-black/70" />
+        <div className="absolute inset-0 bg-gradient-to-br from-black/60 via-primary/50 to-black/70 animate-gradient-pulse" />
         <div className="relative z-10">
           {!isChatbotOpen ? (
             <div className="animate-fade-in-up">
@@ -96,7 +96,7 @@ export default function Home() {
               </Button>
             </div>
           ) : (
-            <div className="w-full max-w-3xl mx-auto animate-fade-in">
+            <div className="w-full max-w-3xl mx-auto animate-fade-in-up">
               <Chatbot consultants={consultants} />
             </div>
           )}
@@ -109,7 +109,7 @@ export default function Home() {
         </div>
         <p className="text-muted-foreground mt-1">당신에게 맞는 상담사를 찾아보세요.</p>
         
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-6 mt-6">
             {currentConsultants.map((consultant) => (
                 <ConsultantCard key={consultant.id} consultant={consultant} />
             ))}

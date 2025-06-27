@@ -6,7 +6,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { ThemeProvider } from '@/components/theme-provider';
 
 export const metadata: Metadata = {
-  title: '이너스펠허브',
+  title: '이너스펠 AI',
   description: '당신의 내면과 숨겨진 이야기를 연결하는 신뢰할 수 있는 영적 허브입니다.',
 };
 
@@ -40,3 +40,5 @@ export default function RootLayout({
     </html>
   );
 }
+
+    
