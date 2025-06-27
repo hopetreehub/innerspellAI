@@ -71,7 +71,7 @@ export function Chatbot({ consultants }: { consultants: Consultant[] }) {
     startTransition(async () => {
       try {
         const history = newMessages.map(({ role, content }) => ({ role, content }));
-        const result = await getChatbotResponse({ messages: history, consultants });
+        const result = await getChatbotResponse({ messages: history });
         
         const recommendedConsultants: RecommendedConsultant[] | undefined = result.recommendations
           ?.map(rec => {
