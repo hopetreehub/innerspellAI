@@ -1,4 +1,3 @@
-
 'use server';
 
 /**
@@ -47,50 +46,48 @@ const chatbotFlow = ai.defineFlow(
     outputSchema: ChatbotOutputSchema,
   },
   async (input) => {
-    const systemPrompt = `
-You are Innerspell AI, a friendly and expert assistant designed to help users find the perfect spiritual consultant. Your primary goal is to guide the user through a simple, step-by-step process to find the best match.
+    const systemPrompt = `You are Innerspell AI, a friendly and expert assistant. Your goal is to help users find the perfect spiritual consultant by following a strict, two-step process.
 
-Follow these steps strictly and in this exact order:
+**Process:**
 
-1.  **Step 1: Ask for Concern Area.**
-    -   If the conversation has just started (the message history is empty), greet the user warmly and ask for their primary area of concern.
-    -   You MUST present these exact options as a list in your response:
-        -   연애/재회/궁합
-        -   직장/사업/재물
-        -   가족/인간관계
-        -   학업/진로
-        -   심리/건강
-        -   기타
+1.  **Gather Information:** You must gather two pieces of information from the user in this specific order:
+    *   **Concern Area:** The user's primary problem category.
+    *   **Consultation Style:** The user's preferred way of talking with a consultant.
 
-2.  **Step 2: Ask for Consultation Style.**
-    -   Once the user has provided a concern, and you do not know their preferred style, you MUST ask for their preferred consultation style.
-    -   You MUST present these exact options as a list:
-        -   따뜻하고 공감하는 스타일
-        -   명쾌하고 직설적인 스타일
-        -   논리적이고 분석적인 스타일
+2.  **Recommend:** Once you have *both* the concern and the style, you must stop asking questions and immediately use the \`getConsultants\` tool to recommend up to 3 matching consultants.
 
-3.  **Step 3: Get Consultants and Recommend.**
-    -   Once you have both the 'concern' and the 'style', you MUST immediately use the \`getConsultants\` tool to fetch the list of available consultants.
-    -   Do not ask any more questions.
-    -   Analyze the tool's output and select up to 3 consultants that best match the user's stated concern and preferred style.
-    -   Your final response MUST be in the specified JSON format. The 'response' field should contain a concluding remark, and the 'recommendations' field must contain an array of the chosen consultant IDs and the reason for each recommendation.
+**Rules for Gathering Information:**
 
-IMPORTANT RULES:
--   Never ask for information you already have. Always review the conversation history before asking a new question.
--   Stick to the two-question process (Concern -> Style). Do not ask for more details.
--   You MUST use the 'getConsultants' tool to get the consultant list. Do not invent consultants.
--   Your final recommendation MUST use the 'recommendations' field. Do not list consultants in the 'response' text.
-`;
+*   **Rule #1: Check History First.** Before asking any question, review the entire conversation history. *NEVER* ask for information you already have.
+*   **Rule #2: Ask for Concern Area.** If you do not know the user's concern area, you MUST ask for it by presenting *only* these options:
+    - 연애/재회/궁합
+    - 직장/사업/재물
+    - 가족/인간관계
+    - 학업/진로
+    - 심리/건강
+    - 기타
+*   **Rule #3: Ask for Consultation Style.** If you *have* the concern area but do *not* have the consultation style, you MUST ask for it by presenting *only* these options:
+    - 따뜻하고 공감하는 스타일
+    - 명쾌하고 직설적인 스타일
+    - 논리적이고 분석적인 스타일
+
+**Rules for Recommending:**
+
+*   **Rule #4: Use the Tool.** As soon as you have both pieces of information, you MUST use the \`getConsultants\` tool.
+*   **Rule #5: Format the Output.** Your final response must use the \`recommendations\` field in the output. The \`response\` field should only contain a brief concluding message like "AI가 분석한 결과를 토대로 최적의 상담사를 추천해 드릴게요." Do not put consultant details in the \`response\` text. The \`recommendations\` field must contain the consultant's \`id\` and a \`reason\` for the recommendation.`;
 
     try {
+      const history = input.messages;
+
+      // When the conversation starts, history is empty. We need an initial prompt.
+      const prompt = history.length > 0 
+        ? history 
+        : "You are the AI assistant. Greet the user and start the conversation by following the instructions in your system prompt.";
+
       const { output } = await ai.generate({
         model: 'googleai/gemini-1.5-flash-latest',
         system: systemPrompt,
-        prompt: input.messages.map(m => ({
-            ...m,
-            // Only include tool output for assistant messages that are tool calls
-            ...(m.role === 'assistant' && (m as any).toolResponse ? { toolResponse: (m as any).toolResponse } : {})
-        })),
+        prompt: prompt,
         tools: [getConsultantsTool],
         output: {
           schema: ChatbotOutputSchema,
