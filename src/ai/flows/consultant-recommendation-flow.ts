@@ -60,11 +60,22 @@ const chatbotFlow = ai.defineFlow(
     outputSchema: ChatbotOutputSchema,
   },
   async (input) => {
-    // API 키가 설정되었는지 명확하게 확인합니다.
+    // API 키가 설정되었는지 명확하게 확인하고, 없으면 상세한 안내를 제공합니다.
     if (!process.env.GOOGLE_API_KEY) {
         console.error("GOOGLE_API_KEY not found in environment variables.");
+        const errorMessage = `**AI API 키가 없습니다.**
+
+AI 챗봇 기능을 사용하려면, Google AI Studio에서 API 키를 발급받아 프로젝트의 \`.env\` 파일에 추가해야 합니다.
+
+1.  **Google AI Studio로 이동하여 API 키를 만드세요.** (무료)
+2.  왼쪽 파일 탐색기에서 \`.env\` 파일을 클릭하세요.
+3.  파일에 다음 내용을 추가하세요:
+    \`\`\`
+    GOOGLE_API_KEY=여기에_발급받은_API_키를_붙여넣으세요
+    \`\`\`
+4.  파일을 저장하면 챗봇이 자동으로 작동합니다.`;
         return {
-            response: 'AI 기능 설정에 문제가 있습니다. 관리자에게 문의하여 API 키를 설정해주세요.'
+            response: errorMessage
         };
     }
 
