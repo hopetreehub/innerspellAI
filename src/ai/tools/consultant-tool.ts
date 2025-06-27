@@ -23,8 +23,8 @@ export const getConsultantsTool = ai.defineTool(
     outputSchema: z.array(ConsultantForAISchema),
   },
   async () => {
-    // 도구는 정적 상담사 목록을 AI가 사용할 간소화된 형태로 변환하여 반환합니다.
-    // 실제 앱에서는 이 부분에서 데이터베이스를 조회할 수 있습니다.
+    // 실제 앱에서는 이 부분에서 데이터베이스를 조회합니다.
+    // 이 도구는 AI가 추천을 하기 위해 사용 가능한 상담사 목록을 반환합니다.
     return consultants.map(c => ({
       id: c.id,
       name: c.name,

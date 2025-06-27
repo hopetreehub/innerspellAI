@@ -63,14 +63,25 @@ const chatbotFlow = ai.defineFlow(
   },
   async (input) => {
     try {
-      const conversationHistory = input.messages.map(msg => ({
-        role: msg.role === 'assistant' ? ('model' as const) : ('user' as const),
-        content: [{ text: msg.content }]
+      // 대화 기록의 형식을 AI 모델에 맞게 변환합니다.
+      // 1. 'assistant' 역할을 'model' 역할로 변경합니다.
+      // 2. content 형식을 올바른 형식(단순 문자열)으로 사용합니다.
+      const mappedHistory = input.messages.map(msg => ({
+        role: msg.role === 'assistant' ? 'model' as const : 'user' as const,
+        content: msg.content,
       }));
+
+      // 3. 대화의 마지막 메시지를 'prompt'로, 나머지를 'history'로 분리합니다.
+      //    이것이 AI.generate()의 올바른 사용법입니다.
+      const lastMessage = mappedHistory.pop();
+      if (!lastMessage) {
+        return { response: "오류: 대화 내용이 없습니다." };
+      }
 
       const result = await ai.generate({
         model: 'googleai/gemini-1.5-flash-latest',
-        history: conversationHistory,
+        prompt: lastMessage.content,
+        history: mappedHistory,
         system: chatbotSystemPrompt,
         tools: [getConsultantsTool],
         output: {
