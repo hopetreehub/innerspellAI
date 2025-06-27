@@ -5,20 +5,23 @@ import { useState, useRef, useEffect, startTransition } from 'react';
 import { getChatbotResponse } from '@/ai/flows/consultant-recommendation-flow';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
-import { Bot, User, CircleDashed } from 'lucide-react';
+import { Bot, User, CircleDashed, Send } from 'lucide-react';
 import { ConsultantCard } from './consultant-card';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import type { Consultant } from '@/types/consultant';
+
+type RecommendedConsultant = Consultant & { reason: string };
 
 type Message = {
   id: string;
   role: 'user' | 'assistant';
   content: string;
   options?: string[];
-  isRecommendation?: boolean;
+  recommendations?: RecommendedConsultant[];
 };
 
 export function Chatbot({ consultants }: { consultants: Consultant[] }) {
@@ -31,7 +34,9 @@ export function Chatbot({ consultants }: { consultants: Consultant[] }) {
 
   const [messages, setMessages] = useState<Message[]>([initialMessage]);
   const [isLoading, setIsLoading] = useState(false);
+  const [inputValue, setInputValue] = useState('');
   const scrollAreaRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (scrollAreaRef.current) {
@@ -42,8 +47,15 @@ export function Chatbot({ consultants }: { consultants: Consultant[] }) {
     }
   }, [messages]);
 
+  useEffect(() => {
+    const lastMessage = messages[messages.length - 1];
+    if (inputRef.current && !isLoading && lastMessage.role === 'assistant' && !lastMessage.options) {
+      inputRef.current.focus();
+    }
+  }, [messages, isLoading]);
+
   const handleSendMessage = async (content: string, isOptionClick = false) => {
-    if (isLoading) return;
+    if (isLoading || !content.trim()) return;
 
     const userMessage: Message = {
       id: crypto.randomUUID(),
@@ -53,28 +65,41 @@ export function Chatbot({ consultants }: { consultants: Consultant[] }) {
 
     const newMessages = [...messages, userMessage];
     if (isOptionClick) {
-      newMessages[newMessages.length - 2].options = undefined;
+      // Find the message with options and remove them
+      const lastBotMessageIndex = newMessages.findLastIndex(m => m.role === 'assistant');
+      if (lastBotMessageIndex !== -1) {
+        newMessages[lastBotMessageIndex].options = undefined;
+      }
     }
     setMessages(newMessages);
     setIsLoading(true);
 
+    if (!isOptionClick) {
+      setInputValue('');
+    }
+
     startTransition(async () => {
       try {
-        const history = newMessages.map(({ id, isRecommendation, ...rest }) => rest);
+        const history = newMessages.map(({ role, content }) => ({ role, content }));
         const result = await getChatbotResponse({ messages: history, consultants });
         
+        const recommendedConsultants: RecommendedConsultant[] | undefined = result.recommendations
+          ?.map(rec => {
+            const consultant = consultants.find(c => c.id === rec.id);
+            return consultant ? { ...consultant, reason: rec.reason } : null;
+          })
+          .filter((c): c is RecommendedConsultant => c !== null);
+
         const optionRegex = /\[([^\]]+)\]/g;
         const extractedOptions = [...result.response.matchAll(optionRegex)].map(match => match[1]);
         const cleanedResponse = result.response.replace(optionRegex, '').trim();
-
-        const recommendedConsultant = consultants.find(c => cleanedResponse.includes(c.name));
 
         const botMessage: Message = {
           id: crypto.randomUUID(),
           role: 'assistant',
           content: cleanedResponse,
           options: extractedOptions.length > 0 ? extractedOptions : undefined,
-          isRecommendation: !!recommendedConsultant,
+          recommendations: recommendedConsultants,
         };
 
         setMessages(prev => [...prev, botMessage]);
@@ -91,6 +116,9 @@ export function Chatbot({ consultants }: { consultants: Consultant[] }) {
       }
     });
   };
+
+  const lastMessage = messages[messages.length - 1];
+  const showInput = !isLoading && lastMessage.role === 'assistant' && !lastMessage.options;
 
   return (
     <Card className="w-full shadow-2xl shadow-primary/10 bg-black/30 backdrop-blur-md border-white/20 text-white">
@@ -120,8 +148,20 @@ export function Chatbot({ consultants }: { consultants: Consultant[] }) {
                         : 'bg-white/10'
                     }`}
                   >
-                    {message.isRecommendation ? (
-                        <RecommendationContent message={message.content} consultants={consultants} />
+                     {message.recommendations && message.recommendations.length > 0 ? (
+                        <div className="space-y-4">
+                            <ReactMarkdown remarkPlugins={[remarkGfm]} className="prose prose-sm prose-invert break-words">
+                                {message.content}
+                            </ReactMarkdown>
+                            {message.recommendations.map((rec) => (
+                                <div key={rec.id} className="space-y-2 bg-black/10 p-3 rounded-lg">
+                                    <ConsultantCard consultant={rec} />
+                                    <p className="text-xs text-white/80 p-2 bg-black/20 rounded-md">
+                                        <strong className="font-semibold text-secondary">AI 추천 이유:</strong> {rec.reason}
+                                    </p>
+                                </div>
+                            ))}
+                        </div>
                     ) : (
                         <ReactMarkdown remarkPlugins={[remarkGfm]} className="prose prose-sm prose-invert break-words">
                             {message.content}
@@ -169,31 +209,29 @@ export function Chatbot({ consultants }: { consultants: Consultant[] }) {
             </div>
           </ScrollArea>
         </div>
+        {showInput && (
+            <form
+                onSubmit={(e) => {
+                    e.preventDefault();
+                    handleSendMessage(inputValue);
+                }}
+                className="mt-4 flex items-center gap-2 border-t border-white/20 pt-4"
+            >
+                <Input
+                    ref={inputRef}
+                    value={inputValue}
+                    onChange={(e) => setInputValue(e.target.value)}
+                    placeholder="질문을 입력해주세요..."
+                    className="bg-white/10 border-white/30 text-white placeholder:text-white/50 focus:ring-secondary"
+                    autoComplete="off"
+                />
+                <Button type="submit" size="icon" className="bg-secondary hover:bg-secondary/90 flex-shrink-0">
+                    <Send className="h-4 w-4" />
+                    <span className="sr-only">전송</span>
+                </Button>
+            </form>
+        )}
       </CardContent>
     </Card>
   );
 }
-
-function RecommendationContent({ message, consultants }: { message: string, consultants: Consultant[] }) {
-    const recommendedConsultant = consultants.find(c => message.includes(c.name));
-
-    if (!recommendedConsultant) {
-        return <ReactMarkdown remarkPlugins={[remarkGfm]} className="prose prose-sm prose-invert break-words">{message}</ReactMarkdown>;
-    }
-    
-    const parts = message.split(recommendedConsultant.name);
-    const beforeText = parts[0];
-    const afterText = recommendedConsultant.name + parts.slice(1).join(recommendedConsultant.name);
-
-    return (
-        <div className="space-y-3">
-             <ReactMarkdown remarkPlugins={[remarkGfm]} className="prose prose-sm prose-invert break-words">{beforeText}</ReactMarkdown>
-            <div className="my-4">
-                <ConsultantCard consultant={recommendedConsultant} />
-            </div>
-            <ReactMarkdown remarkPlugins={[remarkGfm]} className="prose prose-sm prose-invert break-words">{afterText.replace(recommendedConsultant.name, '')}</ReactMarkdown>
-        </div>
-    )
-}
-
-    
