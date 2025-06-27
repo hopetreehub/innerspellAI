@@ -130,121 +130,116 @@ export function Chatbot({ consultants }: { consultants: Consultant[] }) {
         <CardDescription className="text-white/70">당신의 고민에 가장 잘 맞는 상담사를 찾아드릴게요.</CardDescription>
       </CardHeader>
       <CardContent className="p-0 flex-1 flex flex-col min-h-0">
-        <div className="flex-1 flex flex-col min-h-0">
-          <ScrollArea
-            className="flex-1 pr-1"
-            ref={scrollAreaRef}
-          >
-            <div className="space-y-6 p-4 md:p-6">
-              {messages.map((message) => (
+        <ScrollArea className="flex-1" ref={scrollAreaRef}>
+          <div className="space-y-6 p-4 md:p-6">
+            {messages.map((message) => (
+              <div
+                key={message.id}
+                className={`flex items-start gap-3 ${message.role === 'user' ? 'justify-end' : ''}`}
+              >
+                {message.role === 'assistant' && (
+                  <Avatar className="w-9 h-9 border-2 border-secondary/50">
+                    <AvatarFallback className="bg-transparent">
+                      <Bot className="w-5 h-5 text-secondary" />
+                    </AvatarFallback>
+                  </Avatar>
+                )}
                 <div
-                  key={message.id}
-                  className={`flex items-start gap-3 ${message.role === 'user' ? 'justify-end' : ''}`}
+                  className={`rounded-2xl p-3 px-4 max-w-md lg:max-w-lg prose prose-sm prose-invert break-words ${
+                    message.role === 'user'
+                      ? 'bg-primary text-primary-foreground rounded-br-lg'
+                      : 'bg-white/10 rounded-bl-lg'
+                  }`}
                 >
-                  {message.role === 'assistant' && (
-                    <Avatar className="w-9 h-9 border-2 border-secondary/50">
+                   {message.recommendations && message.recommendations.length > 0 ? (
+                      <div className="space-y-4">
+                          <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                              {message.content}
+                          </ReactMarkdown>
+                          <div className="space-y-3 not-prose">
+                              {message.recommendations.map((rec) => (
+                                  <div key={rec.id} className="space-y-2 bg-black/20 p-3 rounded-xl border border-white/10">
+                                      <ConsultantCard consultant={rec} />
+                                      <p className="text-xs text-white/80 p-2.5 bg-black/20 rounded-lg border border-white/10">
+                                          <strong className="font-semibold text-secondary">AI 추천 이유:</strong> {rec.reason}
+                                      </p>
+                                  </div>
+                              ))}
+                          </div>
+                      </div>
+                  ) : (
+                      <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                          {message.content}
+                      </ReactMarkdown>
+                  )}
+                  
+                  {message.options && (
+                    <div className="flex flex-wrap gap-2 mt-4 not-prose">
+                      {message.options.map((option) => (
+                        <Button
+                          key={option}
+                          variant="outline"
+                          size="sm"
+                          onClick={() => handleSendMessage(option, true)}
+                          className="bg-white/10 border-white/20 hover:bg-white/20 text-white rounded-full"
+                        >
+                          {option}
+                        </Button>
+                      ))}
+                    </div>
+                  )}
+                </div>
+                {message.role === 'user' && (
+                  <Avatar className="w-9 h-9 border-white/30">
+                    <AvatarFallback className="bg-transparent">
+                      <User className="w-5 h-5" />
+                    </AvatarFallback>
+                  </Avatar>
+                )}
+              </div>
+            ))}
+            {isLoading && (
+               <div className="flex items-start gap-3">
+                  <Avatar className="w-9 h-9 border-2 border-secondary/50">
                       <AvatarFallback className="bg-transparent">
                         <Bot className="w-5 h-5 text-secondary" />
                       </AvatarFallback>
-                    </Avatar>
-                  )}
-                  <div
-                    className={`rounded-2xl p-3 px-4 max-w-md lg:max-w-lg prose prose-sm prose-invert break-words ${
-                      message.role === 'user'
-                        ? 'bg-primary text-primary-foreground rounded-br-lg'
-                        : 'bg-white/10 rounded-bl-lg'
-                    }`}
-                  >
-                     {message.recommendations && message.recommendations.length > 0 ? (
-                        <div className="space-y-4">
-                            <ReactMarkdown remarkPlugins={[remarkGfm]}>
-                                {message.content}
-                            </ReactMarkdown>
-                            <div className="space-y-3 not-prose">
-                                {message.recommendations.map((rec) => (
-                                    <div key={rec.id} className="space-y-2 bg-black/20 p-3 rounded-xl border border-white/10">
-                                        <ConsultantCard consultant={rec} />
-                                        <p className="text-xs text-white/80 p-2.5 bg-black/20 rounded-lg border border-white/10">
-                                            <strong className="font-semibold text-secondary">AI 추천 이유:</strong> {rec.reason}
-                                        </p>
-                                    </div>
-                                ))}
-                            </div>
-                        </div>
-                    ) : (
-                        <ReactMarkdown remarkPlugins={[remarkGfm]}>
-                            {message.content}
-                        </ReactMarkdown>
-                    )}
-                    
-                    {message.options && (
-                      <div className="flex flex-wrap gap-2 mt-4 not-prose">
-                        {message.options.map((option) => (
-                          <Button
-                            key={option}
-                            variant="outline"
-                            size="sm"
-                            onClick={() => handleSendMessage(option, true)}
-                            className="bg-white/10 border-white/20 hover:bg-white/20 text-white rounded-full"
-                          >
-                            {option}
-                          </Button>
-                        ))}
-                      </div>
-                    )}
+                  </Avatar>
+                  <div className="rounded-2xl p-3 px-4 max-w-sm bg-white/10 flex items-center gap-2 rounded-bl-lg">
+                      <CircleDashed className="w-4 h-4 animate-spin" />
+                      <p className="text-sm text-white/70">AI가 답변을 생각하고 있어요...</p>
                   </div>
-                  {message.role === 'user' && (
-                    <Avatar className="w-9 h-9 border-white/30">
-                      <AvatarFallback className="bg-transparent">
-                        <User className="w-5 h-5" />
-                      </AvatarFallback>
-                    </Avatar>
-                  )}
-                </div>
-              ))}
-              {isLoading && (
-                 <div className="flex items-start gap-3">
-                    <Avatar className="w-9 h-9 border-2 border-secondary/50">
-                        <AvatarFallback className="bg-transparent">
-                          <Bot className="w-5 h-5 text-secondary" />
-                        </AvatarFallback>
-                    </Avatar>
-                    <div className="rounded-2xl p-3 px-4 max-w-sm bg-white/10 flex items-center gap-2 rounded-bl-lg">
-                        <CircleDashed className="w-4 h-4 animate-spin" />
-                        <p className="text-sm text-white/70">AI가 답변을 생각하고 있어요...</p>
-                    </div>
-                </div>
-              )}
-            </div>
-          </ScrollArea>
-        
-            {showInput && (
-                <div className="border-t border-white/10 p-4 flex-shrink-0">
-                    <form
-                        onSubmit={(e) => {
-                            e.preventDefault();
-                            handleSendMessage(inputValue);
-                        }}
-                        className="relative"
-                    >
-                        <Textarea
-                            ref={inputRef}
-                            value={inputValue}
-                            onChange={(e) => setInputValue(e.target.value)}
-                            onKeyDown={handleKeyDown}
-                            placeholder="자세한 고민을 이야기해주세요..."
-                            className="bg-white/10 border-white/20 text-white placeholder:text-white/60 focus:ring-secondary min-h-[80px] resize-none pr-14"
-                            autoComplete="off"
-                            rows={3}
-                        />
-                        <Button type="submit" size="icon" className="bg-secondary hover:bg-secondary/90 flex-shrink-0 absolute right-3 bottom-3 h-9 w-9">
-                            <Send className="h-4 w-4" />
-                            <span className="sr-only">전송</span>
-                        </Button>
-                    </form>
-                </div>
+              </div>
             )}
-        </div>
+          </div>
+        </ScrollArea>
+      
+        {showInput && (
+            <div className="border-t border-white/10 p-4 flex-shrink-0">
+                <form
+                    onSubmit={(e) => {
+                        e.preventDefault();
+                        handleSendMessage(inputValue);
+                    }}
+                    className="relative"
+                >
+                    <Textarea
+                        ref={inputRef}
+                        value={inputValue}
+                        onChange={(e) => setInputValue(e.target.value)}
+                        onKeyDown={handleKeyDown}
+                        placeholder="자세한 고민을 이야기해주세요..."
+                        className="bg-white/10 border-white/20 text-white placeholder:text-white/60 focus:ring-secondary min-h-[80px] resize-none pr-14"
+                        autoComplete="off"
+                        rows={3}
+                    />
+                    <Button type="submit" size="icon" className="bg-secondary hover:bg-secondary/90 flex-shrink-0 absolute right-3 bottom-3 h-9 w-9">
+                        <Send className="h-4 w-4" />
+                        <span className="sr-only">전송</span>
+                    </Button>
+                </form>
+            </div>
+        )}
       </CardContent>
     </Card>
   );
