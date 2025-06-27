@@ -116,7 +116,7 @@ export function Chatbot({ consultants }: { consultants: Consultant[] }) {
   };
 
   const lastMessage = messages[messages.length - 1];
-  const showInput = !isLoading && (!lastMessage.recommendations || lastMessage.recommendations.length === 0);
+  const showInputForm = !lastMessage.recommendations || lastMessage.recommendations.length === 0;
 
 
   return (
@@ -179,6 +179,7 @@ export function Chatbot({ consultants }: { consultants: Consultant[] }) {
                           size="sm"
                           onClick={() => handleSendMessage(option, true)}
                           className="bg-white/10 border-white/20 hover:bg-white/20 text-white rounded-full"
+                          disabled={isLoading}
                         >
                           {option}
                         </Button>
@@ -213,8 +214,8 @@ export function Chatbot({ consultants }: { consultants: Consultant[] }) {
         </ScrollArea>
       </CardContent>
       
-      {showInput && (
-        <div className="border-t border-white/10 p-4 flex-shrink-0 bg-black/40 rounded-b-2xl">
+      <div className="border-t border-white/10 p-4 flex-shrink-0 bg-black/40 rounded-b-2xl">
+        {showInputForm ? (
             <form
                 onSubmit={(e) => {
                     e.preventDefault();
@@ -227,18 +228,26 @@ export function Chatbot({ consultants }: { consultants: Consultant[] }) {
                     value={inputValue}
                     onChange={(e) => setInputValue(e.target.value)}
                     onKeyDown={handleKeyDown}
-                    placeholder="자세한 고민을 이야기해주세요..."
+                    placeholder={isLoading ? "AI가 답변을 생각하고 있어요..." : "자세한 고민을 이야기해주세요..."}
                     className="bg-white/10 border-white/20 text-white placeholder:text-white/60 focus:ring-secondary min-h-[80px] resize-none pr-14"
                     autoComplete="off"
                     rows={3}
+                    disabled={isLoading}
                 />
-                <Button type="submit" size="icon" className="bg-secondary hover:bg-secondary/90 flex-shrink-0 absolute right-3 bottom-3 h-9 w-9" disabled={!inputValue.trim()}>
+                <Button type="submit" size="icon" className="bg-secondary hover:bg-secondary/90 flex-shrink-0 absolute right-3 bottom-3 h-9 w-9" disabled={isLoading || !inputValue.trim()}>
                     <Send className="h-4 w-4" />
                     <span className="sr-only">전송</span>
                 </Button>
             </form>
-        </div>
-      )}
+        ) : (
+            <div className="text-center text-white/70 text-sm flex items-center justify-center min-h-[80px]">
+                <div>
+                    <p>추천이 완료되었습니다.</p>
+                    <p className='mt-1'>대화를 다시 시작하려면 창을 닫고 새로 열어주세요.</p>
+                </div>
+            </div>
+        )}
+      </div>
     </Card>
   );
 }
