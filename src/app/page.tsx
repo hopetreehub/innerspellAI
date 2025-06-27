@@ -1,16 +1,12 @@
-
 'use client';
 
 import { useState } from 'react';
 import { ConsultantCard } from '@/components/consultant-card';
 import { Button } from '@/components/ui/button';
 import Image from 'next/image';
-import { Chatbot } from '@/components/chatbot';
-import { ArrowRight } from 'lucide-react';
 import { Pagination, PaginationContent, PaginationItem, PaginationPrevious, PaginationLink, PaginationNext } from '@/components/ui/pagination';
 import { consultants } from '@/lib/consultants';
 import type { Consultant } from '@/types/consultant';
-import { Dialog, DialogContent, DialogTrigger } from '@/components/ui/dialog';
 
 const specialties = ['전체', ...Array.from(new Set(consultants.map(c => c.specialty)))];
 
@@ -53,24 +49,11 @@ export default function Home() {
         <div className="absolute inset-0 bg-gradient-to-r from-primary/30 via-purple-900/40 to-black/70 animate-gradient-pulse" style={{ backgroundSize: '200% 200%' }} />
         <div className="relative z-10 w-full animate-fade-in-up">
             <h1 className="font-headline text-4xl md:text-6xl font-bold tracking-tight leading-tight">
-                AI와 함께<br />운명의 길잡이를 찾아보세요
+                운명의 길잡이를 찾아보세요
             </h1>
             <p className="text-white/80 mt-4 text-lg max-w-2xl mx-auto">
-                몇 가지 질문에 답하고, 당신의 고민에 꼭 맞는 최고의 상담사를 추천받으세요.
+                당신의 고민에 꼭 맞는 최고의 상담사를 만나보세요.
             </p>
-            <Dialog>
-                <DialogTrigger asChild>
-                    <Button 
-                        size="lg" 
-                        className="mt-8 bg-white/10 backdrop-blur-sm border-white/20 border hover:bg-white/20 text-white text-lg px-8 py-6 rounded-full transition-all hover:scale-105"
-                    >
-                        AI 추천 시작하기 <ArrowRight className="ml-2" />
-                    </Button>
-                </DialogTrigger>
-                <DialogContent className="p-0 bg-transparent border-0 w-full max-w-2xl md:max-w-3xl lg:max-w-4xl h-[80vh] md:h-[90vh] max-h-[800px]">
-                    <Chatbot consultants={consultants as Consultant[]} />
-                </DialogContent>
-            </Dialog>
         </div>
       </section>
 
