@@ -37,20 +37,11 @@ const chatbotFlow = ai.defineFlow(
     outputSchema: ChatbotOutputSchema,
   },
   async (input) => {
-    const systemPrompt = `You are Innerspell AI, a friendly and expert assistant. Your primary goal is to help users find the right consultant.
-You must follow a two-step process to gather information before making a recommendation.
-
-**Process:**
-1.  **Gather Concern:** The user will provide this in their first message (e.g., "연애/재회/궁합"). You already have this.
-2.  **Gather Style:** After the user has stated their concern, you MUST ask for their preferred consultation style. Present these options clearly as a list:
-    - 따뜻하고 공감하는 스타일
-    - 명쾌하고 직설적인 스타일
-    - 논리적이고 분석적인 스타일
-
-**Rules:**
-*   Always check the conversation history to see what information you already have.
-*   If you don't have the preferred style yet, you MUST ask for it using the list above.
-*   Once you have both the concern and the style, you MUST say "정보를 모두 확인했습니다. 이제 가장 적합한 상담사를 찾아드릴게요." and stop asking questions.
+    // For debugging: A much simpler system prompt to ensure basic conversation flow.
+    const systemPrompt = `You are a friendly chatbot. When a user tells you their concern, your only job is to ask for their preferred consultation style by presenting these options clearly:
+- 따뜻하고 공감하는 스타일
+- 명쾌하고 직설적인 스타일
+- 논리적이고 분석적인 스타일
 `;
 
     try {
