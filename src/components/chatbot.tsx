@@ -126,7 +126,7 @@ export function Chatbot({ consultants }: { consultants: Consultant[] }) {
         <CardTitle className="font-headline text-2xl">AI 상담사 추천</CardTitle>
       </CardHeader>
       <CardContent>
-        <div className="h-[400px] flex flex-col">
+        <div className="h-[500px] flex flex-col">
           <ScrollArea className="flex-1 pr-4 -mr-4" ref={scrollAreaRef}>
             <div className="space-y-6">
               {messages.map((message) => (
@@ -153,14 +153,16 @@ export function Chatbot({ consultants }: { consultants: Consultant[] }) {
                             <ReactMarkdown remarkPlugins={[remarkGfm]} className="prose prose-sm prose-invert break-words">
                                 {message.content}
                             </ReactMarkdown>
-                            {message.recommendations.map((rec) => (
-                                <div key={rec.id} className="space-y-2 bg-black/10 p-3 rounded-lg">
-                                    <ConsultantCard consultant={rec} />
-                                    <p className="text-xs text-white/80 p-2 bg-black/20 rounded-md">
-                                        <strong className="font-semibold text-secondary">AI 추천 이유:</strong> {rec.reason}
-                                    </p>
-                                </div>
-                            ))}
+                            <div className="space-y-3">
+                                {message.recommendations.map((rec) => (
+                                    <div key={rec.id} className="space-y-2 bg-black/20 p-3 rounded-lg">
+                                        <ConsultantCard consultant={rec} />
+                                        <p className="text-xs text-white/80 p-2 bg-black/20 rounded-md">
+                                            <strong className="font-semibold text-secondary">AI 추천 이유:</strong> {rec.reason}
+                                        </p>
+                                    </div>
+                                ))}
+                            </div>
                         </div>
                     ) : (
                         <ReactMarkdown remarkPlugins={[remarkGfm]} className="prose prose-sm prose-invert break-words">

@@ -1,0 +1,165 @@
+import Image from 'next/image';
+import { notFound } from 'next/navigation';
+import { getConsultantById } from '@/lib/consultants';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Star, Phone, MessageSquarePlus, PenSquare, Wallet } from 'lucide-react';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
+
+function StarRating({ rating, reviewCount }: { rating: number, reviewCount: number }) {
+  return (
+    <div className="flex items-center gap-2">
+      <div className="flex items-center">
+        {[...Array(5)].map((_, i) => (
+          <Star
+            key={i}
+            className={`w-5 h-5 ${i < Math.round(rating) ? 'text-secondary fill-secondary' : 'text-muted-foreground/50'}`}
+          />
+        ))}
+      </div>
+      <span className="font-bold text-lg">{rating.toFixed(1)}</span>
+      <span className="text-sm text-muted-foreground">({reviewCount}개 후기)</span>
+    </div>
+  );
+}
+
+export default function ConsultantDetailPage({ params }: { params: { id: string } }) {
+  const consultant = getConsultantById(params.id);
+
+  if (!consultant) {
+    notFound();
+  }
+
+  return (
+    <div className="container mx-auto px-4 py-8 md:py-12">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        {/* Left Sidebar */}
+        <div className="lg:col-span-1 space-y-6">
+          <Card className="overflow-hidden">
+            <div className="relative w-full aspect-[4/5]">
+              <Image
+                src={consultant.image}
+                alt={consultant.name}
+                fill
+                className="object-cover"
+                priority
+              />
+            </div>
+            <CardContent className="p-4">
+              <h1 className="font-headline text-2xl font-bold">{consultant.name}</h1>
+              <p className="text-md text-muted-foreground font-semibold">[{consultant.phoneId}] {consultant.specialty}</p>
+              <div className="flex items-center gap-1.5 text-sm text-muted-foreground mt-2">
+                <Wallet className="w-4 h-4"/>
+                <span>30초당 {consultant.price.toLocaleString()}원</span>
+             </div>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardContent className="p-4 space-y-3">
+              <Button size="lg" className="w-full text-lg h-12">
+                <Phone className="mr-2"/>
+                전화상담 신청
+              </Button>
+              <Button size="lg" variant="secondary" className="w-full text-lg h-12">
+                 <MessageSquarePlus className="mr-2"/>
+                 1:1 비밀문의
+              </Button>
+            </CardContent>
+          </Card>
+          <Card>
+             <CardHeader>
+                <CardTitle className="text-lg">전문분야</CardTitle>
+            </CardHeader>
+            <CardContent>
+                <div className="flex flex-wrap gap-2">
+                    {consultant.keywords.map(keyword => (
+                        <Badge key={keyword} variant="outline" className="text-md px-3 py-1">{keyword}</Badge>
+                    ))}
+                </div>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Right Content */}
+        <div className="lg:col-span-2">
+          <Tabs defaultValue="profile" className="w-full">
+            <TabsList className="grid w-full grid-cols-3">
+              <TabsTrigger value="profile">프로필</TabsTrigger>
+              <TabsTrigger value="reviews">고객 후기</TabsTrigger>
+              <TabsTrigger value="posts">상담사 칼럼</TabsTrigger>
+            </TabsList>
+
+            {/* Profile Tab */}
+            <TabsContent value="profile" className="mt-6">
+              <Card>
+                <CardHeader>
+                  <CardTitle>상담사 소개</CardTitle>
+                </CardHeader>
+                <CardContent className="prose prose-sm dark:prose-invert max-w-none">
+                  <ReactMarkdown remarkPlugins={[remarkGfm]}>{consultant.bio}</ReactMarkdown>
+                </CardContent>
+              </Card>
+            </TabsContent>
+            
+            {/* Reviews Tab */}
+            <TabsContent value="reviews" className="mt-6">
+                <Card>
+                    <CardHeader>
+                        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                            <div>
+                                <CardTitle>고객 후기</CardTitle>
+                                <CardDescription>실제 상담을 받은 고객님들의 생생한 후기입니다.</CardDescription>
+                            </div>
+                            <Button variant="outline"><PenSquare className="mr-2"/>후기 작성하기</Button>
+                        </div>
+                    </CardHeader>
+                    <CardContent className="space-y-6">
+                       <StarRating rating={consultant.rating} reviewCount={consultant.reviewCount} />
+                       <hr className="border-border" />
+                       {consultant.reviews.map(review => (
+                         <div key={review.id} className="space-y-2">
+                            <div className="flex items-center justify-between">
+                                <div className="flex items-center gap-2">
+                                    <h4 className="font-semibold">{review.author}</h4>
+                                    <div className="flex items-center">
+                                    {[...Array(5)].map((_, i) => (
+                                      <Star key={i} className={`w-4 h-4 ${i < review.rating ? 'text-secondary fill-secondary' : 'text-muted-foreground/30'}`} />
+                                    ))}
+                                    </div>
+                                </div>
+                                <span className="text-xs text-muted-foreground">{review.createdAt}</span>
+                            </div>
+                            <p className="text-sm text-foreground/90 bg-muted/50 p-3 rounded-md">{review.comment}</p>
+                         </div>
+                       ))}
+                    </CardContent>
+                </Card>
+            </TabsContent>
+
+            {/* Posts Tab */}
+            <TabsContent value="posts" className="mt-6">
+                <Card>
+                    <CardHeader>
+                        <CardTitle>상담사 칼럼</CardTitle>
+                        <CardDescription>{consultant.name}님이 직접 작성한 칼럼입니다.</CardDescription>
+                    </CardHeader>
+                    <CardContent className="space-y-6">
+                       {consultant.posts.map(post => (
+                         <div key={post.id} className="border-b border-border pb-4 last:border-none last:pb-0">
+                            <h4 className="font-semibold text-lg hover:text-primary transition-colors cursor-pointer">{post.title}</h4>
+                            <p className="text-sm text-muted-foreground mt-1">{post.createdAt}</p>
+                            <p className="text-sm text-foreground/80 mt-2 line-clamp-2">{post.content}</p>
+                         </div>
+                       ))}
+                    </CardContent>
+                </Card>
+            </TabsContent>
+          </Tabs>
+        </div>
+      </div>
+    </div>
+  );
+}
