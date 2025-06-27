@@ -1,11 +1,16 @@
+
+'use client';
+
 import Image from 'next/image';
+import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { getConsultantById } from '@/lib/consultants';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Star, Phone, MessageSquarePlus, PenSquare, Wallet } from 'lucide-react';
+import { Textarea } from '@/components/ui/textarea';
+import { Star, Phone, MessageSquarePlus, PenSquare, Wallet, ThumbsUp, Share2, MessageCircle } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 
@@ -63,9 +68,11 @@ export default function ConsultantDetailPage({ params }: { params: { id: string 
                 <Phone className="mr-2"/>
                 전화상담 신청
               </Button>
-              <Button size="lg" variant="secondary" className="w-full text-lg h-12">
-                 <MessageSquarePlus className="mr-2"/>
-                 1:1 비밀문의
+              <Button size="lg" variant="secondary" className="w-full text-lg h-12" asChild>
+                 <Link href={`/inquiry/${consultant.id}`}>
+                    <MessageSquarePlus className="mr-2"/>
+                    1:1 문의
+                 </Link>
               </Button>
             </CardContent>
           </Card>
@@ -113,7 +120,11 @@ export default function ConsultantDetailPage({ params }: { params: { id: string 
                                 <CardTitle>고객 후기</CardTitle>
                                 <CardDescription>실제 상담을 받은 고객님들의 생생한 후기입니다.</CardDescription>
                             </div>
-                            <Button variant="outline"><PenSquare className="mr-2"/>후기 작성하기</Button>
+                            <Button variant="outline" asChild>
+                                <Link href={`/review/new/${consultant.id}`}>
+                                    <PenSquare className="mr-2"/>후기 작성하기
+                                </Link>
+                            </Button>
                         </div>
                     </CardHeader>
                     <CardContent className="space-y-6">
@@ -142,16 +153,50 @@ export default function ConsultantDetailPage({ params }: { params: { id: string 
             {/* Posts Tab */}
             <TabsContent value="posts" className="mt-6">
                 <Card>
-                    <CardHeader>
-                        <CardTitle>상담사 칼럼</CardTitle>
-                        <CardDescription>{consultant.name}님이 직접 작성한 칼럼입니다.</CardDescription>
+                     <CardHeader>
+                        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                            <div>
+                               <CardTitle>상담사 칼럼</CardTitle>
+                               <CardDescription>{consultant.name}님이 직접 작성한 칼럼입니다.</CardDescription>
+                            </div>
+                            <Button variant="outline" asChild>
+                                <Link href="/posts/new">
+                                    <PenSquare className="mr-2"/>칼럼 작성하기
+                                </Link>
+                            </Button>
+                        </div>
                     </CardHeader>
-                    <CardContent className="space-y-6">
+                    <CardContent className="space-y-8">
                        {consultant.posts.map(post => (
-                         <div key={post.id} className="border-b border-border pb-4 last:border-none last:pb-0">
-                            <h4 className="font-semibold text-lg hover:text-primary transition-colors cursor-pointer">{post.title}</h4>
+                         <div key={post.id} className="border-b border-border pb-6 last:border-none last:pb-0">
+                            <h4 className="font-semibold text-xl hover:text-primary transition-colors cursor-pointer">{post.title}</h4>
                             <p className="text-sm text-muted-foreground mt-1">{post.createdAt}</p>
-                            <p className="text-sm text-foreground/80 mt-2 line-clamp-2">{post.content}</p>
+                            <p className="text-base text-foreground/80 mt-4 leading-relaxed">{post.content}</p>
+
+                            <div className="flex items-center gap-2 mt-4 pt-4 border-t">
+                               <Button variant="ghost" size="sm"><ThumbsUp className="mr-2"/>공감 (12)</Button>
+                               <Button variant="ghost" size="sm"><Share2 className="mr-2"/>공유</Button>
+                            </div>
+
+                            <div className="mt-6 space-y-4">
+                                <h5 className="font-semibold flex items-center gap-2"><MessageCircle className="w-4 h-4" /> 댓글 (2)</h5>
+                                {/* Existing Comments */}
+                                <div className="space-y-3 text-sm">
+                                    <div className="bg-muted/50 p-3 rounded-md">
+                                        <p className="font-semibold">사용자1</p>
+                                        <p className="text-foreground/80">좋은 글 감사합니다!</p>
+                                    </div>
+                                    <div className="bg-muted/50 p-3 rounded-md">
+                                        <p className="font-semibold">사용자2</p>
+                                        <p className="text-foreground/80">많은 도움이 되었습니다.</p>
+                                    </div>
+                                </div>
+                                {/* New Comment Form */}
+                                <div className="flex items-start gap-2">
+                                   <Textarea placeholder="댓글을 입력하세요..." className="min-h-[60px]" />
+                                   <Button>등록</Button>
+                                </div>
+                            </div>
                          </div>
                        ))}
                     </CardContent>

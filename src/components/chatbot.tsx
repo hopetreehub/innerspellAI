@@ -45,7 +45,7 @@ export function Chatbot({ consultants }: { consultants: Consultant[] }) {
         behavior: 'smooth',
       });
     }
-  }, [messages]);
+  }, [messages, isLoading]);
 
   useEffect(() => {
     const lastMessage = messages[messages.length - 1];
@@ -118,7 +118,7 @@ export function Chatbot({ consultants }: { consultants: Consultant[] }) {
   };
 
   const lastMessage = messages[messages.length - 1];
-  const showInput = !isLoading && lastMessage.role === 'assistant' && !lastMessage.options;
+  const showInput = !isLoading && lastMessage.role === 'assistant' && !lastMessage.options && !lastMessage.recommendations;
 
   return (
     <Card className="w-full shadow-2xl shadow-primary/10 bg-black/30 backdrop-blur-md border-white/20 text-white">
@@ -127,7 +127,11 @@ export function Chatbot({ consultants }: { consultants: Consultant[] }) {
       </CardHeader>
       <CardContent>
         <div className="h-[500px] flex flex-col">
-          <ScrollArea className="flex-1 pr-4 -mr-4" ref={scrollAreaRef}>
+          <ScrollArea
+            className="flex-1 pr-4 -mr-4"
+            ref={scrollAreaRef}
+            onWheel={(e) => e.stopPropagation()}
+          >
             <div className="space-y-6">
               {messages.map((message) => (
                 <div
