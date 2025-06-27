@@ -25,17 +25,19 @@ type Message = {
   recommendations?: Recommendation[];
 };
 
+const initialCategories = [
+  '연애/재회/궁합',
+  '직장/사업/재물',
+  '가족/인간관계',
+  '학업/진로',
+  '심리/건강',
+  '기타'
+];
+
 const initialBotMessage: Message = {
     id: crypto.randomUUID(),
     role: 'assistant',
-    content: `안녕하세요! 이너스펠 AI입니다. 어떤 마음의 짐을 덜고 싶으신가요? 가장 고민되는 주제를 한 가지만 골라주시면, 길을 찾는 데 도움을 드릴게요.
-
-- 연애/재회/궁합
-- 직장/사업/재물
-- 가족/인간관계
-- 학업/진로
-- 심리/건강
-- 기타`
+    content: `안녕하세요! 이너스펠 AI입니다. 어떤 마음의 짐을 덜고 싶으신가요? 가장 고민되는 주제를 한 가지만 골라주시면, 길을 찾는 데 도움을 드릴게요.`
 };
 
 
@@ -135,6 +137,22 @@ export function Chatbot({ consultants }: { consultants: Consultant[] }) {
                  <ReactMarkdown remarkPlugins={[remarkGfm]}>
                     {message.content}
                  </ReactMarkdown>
+
+                 {message.id === initialBotMessage.id && messages.length === 1 && (
+                    <div className="mt-4 grid grid-cols-2 gap-2 not-prose">
+                        {initialCategories.map((category) => (
+                            <Button
+                                key={category}
+                                variant="outline"
+                                className="justify-start text-left h-auto py-2 bg-white/10 border-white/20 hover:bg-white/20 text-white"
+                                onClick={() => !isLoading && handleSendMessage(category)}
+                                disabled={isLoading}
+                            >
+                                {category}
+                            </Button>
+                        ))}
+                    </div>
+                 )}
                 
                  {message.recommendations && message.recommendations.length > 0 && (
                     <div className="mt-4 space-y-3 not-prose">
@@ -197,7 +215,7 @@ export function Chatbot({ consultants }: { consultants: Consultant[] }) {
                   placeholder={
                     isLoading ? "AI가 답변을 생각하고 있어요..." :
                     hasRecommendations ? "추천이 완료되었습니다. 상담사를 선택해주세요." :
-                    "자세한 고민을 이야기해주세요..."
+                    messages.length === 1 ? "선택지를 클릭하거나 직접 입력하세요..." : "자세한 고민을 이야기해주세요..."
                   }
                   className="bg-white/10 border-white/20 text-white placeholder:text-white/60 focus:ring-secondary min-h-[80px] resize-none pr-14"
                   autoComplete="off"
