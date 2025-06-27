@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useRef, useEffect, startTransition } from 'react';
@@ -115,7 +116,8 @@ export function Chatbot({ consultants }: { consultants: Consultant[] }) {
   };
 
   const lastMessage = messages[messages.length - 1];
-  const showInput = !isLoading && lastMessage.role === 'assistant' && !lastMessage.recommendations;
+  const showInput = !isLoading && (!lastMessage.recommendations || lastMessage.recommendations.length === 0);
+
 
   return (
     <Card className="w-full h-full shadow-2xl shadow-primary/10 bg-black/40 backdrop-blur-xl border border-white/20 text-white rounded-2xl flex flex-col">
@@ -230,7 +232,7 @@ export function Chatbot({ consultants }: { consultants: Consultant[] }) {
                     autoComplete="off"
                     rows={3}
                 />
-                <Button type="submit" size="icon" className="bg-secondary hover:bg-secondary/90 flex-shrink-0 absolute right-3 bottom-3 h-9 w-9">
+                <Button type="submit" size="icon" className="bg-secondary hover:bg-secondary/90 flex-shrink-0 absolute right-3 bottom-3 h-9 w-9" disabled={!inputValue.trim()}>
                     <Send className="h-4 w-4" />
                     <span className="sr-only">전송</span>
                 </Button>
