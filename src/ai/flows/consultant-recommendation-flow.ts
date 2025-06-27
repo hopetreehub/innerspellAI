@@ -93,7 +93,9 @@ const chatbotFlow = ai.defineFlow(
         return output;
     } catch (error) {
         console.error("Chatbot flow error:", error);
-        // API 키가 유효하지 않은 경우를 대비해 더 구체적인 오류 메시지를 반환합니다.
+        if (error instanceof Error) {
+          console.error("Detailed Error Message:", error.message);
+        }
         return { 
             response: "죄송합니다. AI 서비스 연결에 실패했습니다. API 키가 유효하지 않거나 관련 클라우드 서비스가 활성화되지 않았을 수 있습니다. 관리자에게 문의하여 AI 설정을 확인해주세요." 
         };
