@@ -30,7 +30,6 @@ export function AppHeader() {
             <Link href="/" className="transition-colors hover:text-foreground/80 text-foreground/60">상담사</Link>
             <Link href="/content" className="transition-colors hover:text-foreground/80 text-foreground/60">콘텐츠</Link>
             <Link href="/community" className="transition-colors hover:text-foreground/80 text-foreground/60">커뮤니티</Link>
-            <Link href="/admin" className="transition-colors hover:text-foreground/80 text-foreground/60">관리자</Link>
           </nav>
         </div>
         <div className="flex flex-1 items-center justify-end space-x-2">
