@@ -13,7 +13,6 @@ import { Star, ArrowLeft, ImagePlus } from 'lucide-react';
 import Link from 'next/link';
 import { useToast } from '@/hooks/use-toast';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 
 export default function NewReviewPage() {
   const params = useParams();
@@ -190,47 +189,8 @@ export default function NewReviewPage() {
                   <span className="text-sm font-medium text-muted-foreground">{imageFile ? imageFile.name : '클릭하여 사진을 첨부하세요'}</span>
                </Label>
             </div>
-            
-            <Accordion type="single" collapsible className="w-full">
-              <AccordionItem value="item-1">
-                <AccordionTrigger className="text-base font-semibold hover:no-underline">상담 후기 운영 정책</AccordionTrigger>
-                <AccordionContent className="text-xs text-muted-foreground space-y-4 pt-4">
-                  <p>
-                    이너스펠 AI는 신뢰도 높은 후기 문화를 만들기 위해 실제 상담을 이용한 회원님만 후기를 작성할 수 있도록 하고 있습니다.
-                  </p>
-            
-                  <div className="space-y-2">
-                    <h4 className="font-semibold text-foreground">후기 작성 혜택</h4>
-                    <ul className="list-disc pl-4 space-y-1">
-                      <li><strong>일반 후기 (30자 이상):</strong> 500 코인 지급</li>
-                      <li><strong>포토 후기 (사진 첨부):</strong> 1,000 코인 지급</li>
-                      <li><strong>베스트 후기 (매월 선정):</strong> 10,000 코인 지급</li>
-                    </ul>
-                    <p className="pt-1">
-                      <strong>베스트 후기 선정 안내:</strong> 상담을 통해 어떤 고민이 어떻게 해결되었는지, 상담사님의 어떤 점이 좋았는지 구체적이고 진솔하게 작성해주시면 선정 확률이 높아집니다. 다른 분들에게 도움이 될 수 있는 후기를 기다립니다.
-                    </p>
-                  </div>
-            
-                  <div className="space-y-2">
-                    <h4 className="font-semibold text-foreground">후기 관리 규정</h4>
-                    <p>
-                      이너스펠 AI는 고객님의 소중한 후기를 가감 없이 게시하는 것을 원칙으로 합니다. 단, 건전한 커뮤니티 조성을 위해 아래에 해당하는 경우 관리자 확인 후 비공개 처리되거나 삭제될 수 있습니다.
-                    </p>
-                    <ol className="list-decimal pl-4 space-y-1">
-                      <li>상담 내용과 무관한 게시물</li>
-                      <li>특정인에 대한 욕설, 비방, 명예를 훼손하는 내용</li>
-                      <li>연락처, 이메일 등 개인정보가 포함된 경우</li>
-                      <li>동일한 상담에 대해 반복적으로 작성된 경우</li>
-                      <li>타 서비스 홍보 및 광고성 내용</li>
-                      <li>기타 법령에 위배되거나 미풍양속을 해치는 내용</li>
-                    </ol>
-                  </div>
-                </AccordionContent>
-              </AccordionItem>
-            </Accordion>
 
-
-            <Button type="submit" size="lg" className="w-full !mt-10">
+            <Button type="submit" size="lg" className="w-full mt-8">
               후기 등록하기
             </Button>
           </form>
