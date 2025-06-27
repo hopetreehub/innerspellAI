@@ -65,11 +65,11 @@ export default function Home() {
           src="https://placehold.co/1600x900.png"
           alt="신비로운 우주 배경"
           fill
-          className="object-cover"
-          data-ai-hint="mystical portal"
+          className="object-cover animate-slow-zoom"
+          data-ai-hint="mystical galaxy"
           priority
         />
-        <div className="absolute inset-0 bg-gradient-to-br from-black/60 via-primary/50 to-black/70 animate-gradient-pulse" />
+        <div className="absolute inset-0 bg-gradient-to-r from-primary/30 via-purple-900/40 to-black/70 animate-gradient-pulse" style={{ backgroundSize: '200% 200%' }} />
         <div className="relative z-10 w-full">
           {!isChatbotOpen ? (
             <div className="animate-fade-in-up">
