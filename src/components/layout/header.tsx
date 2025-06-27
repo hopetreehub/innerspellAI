@@ -1,3 +1,4 @@
+
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Search } from 'lucide-react';
@@ -26,9 +27,9 @@ export function AppHeader() {
             <span className="font-bold font-headline text-lg">Innerspellhub</span>
           </Link>
           <nav className="hidden items-center gap-6 text-sm md:flex">
-            <Link href="#" className="transition-colors hover:text-foreground/80 text-foreground/60">상담사</Link>
-            <Link href="#" className="transition-colors hover:text-foreground/80 text-foreground/60">콘텐츠</Link>
-            <Link href="#" className="transition-colors hover:text-foreground/80 text-foreground/60">커뮤니티</Link>
+            <Link href="/" className="transition-colors hover:text-foreground/80 text-foreground/60">상담사</Link>
+            <Link href="/content" className="transition-colors hover:text-foreground/80 text-foreground/60">콘텐츠</Link>
+            <Link href="/community" className="transition-colors hover:text-foreground/80 text-foreground/60">커뮤니티</Link>
           </nav>
         </div>
         <div className="flex flex-1 items-center justify-end space-x-2">

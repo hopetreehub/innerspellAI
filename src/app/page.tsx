@@ -3,30 +3,13 @@
 
 import { useState } from 'react';
 import { ConsultantCard } from '@/components/consultant-card';
-import { DailySpellCard } from '@/components/daily-spell-card';
 import { Button } from '@/components/ui/button';
 import Image from 'next/image';
-import { Badge } from '@/components/ui/badge';
 import { Chatbot } from '@/components/chatbot';
 import { ArrowRight } from 'lucide-react';
 import { Pagination, PaginationContent, PaginationItem, PaginationPrevious, PaginationLink, PaginationNext } from '@/components/ui/pagination';
 import { consultants } from '@/lib/consultants';
 import type { Consultant } from '@/types/consultant';
-
-type Content = {
-  id: string;
-  title: string;
-  category: string;
-  image: string;
-  dataAiHint?: string;
-};
-
-const latestContent: Content[] = [
-    { id: '1', title: "수성 역행: 생존 가이드", category: "점성술", image: "https://placehold.co/800x450.png", dataAiHint: 'planets orbit' },
-    { id: '2', title: "타로의 연인 카드 이해하기", category: "타로", image: "https://placehold.co/800x450.png", dataAiHint: 'lovers hands' },
-    { id: '3', title: "당신의 인생 경로 숫자 찾기", category: "수비학", image: "https://placehold.co/800x450.png", dataAiHint: 'ancient script' },
-    { id: '4', title: "초심자를 위한 명상 가이드", category: "웰빙", image: "https://placehold.co/800x450.png", dataAiHint: 'serene landscape' },
-];
 
 const specialties = ['전체', ...Array.from(new Set(consultants.map(c => c.specialty)))];
 
@@ -140,36 +123,6 @@ export default function Home() {
               </Pagination>
           </div>
         )}
-      </section>
-
-      <section>
-        <div className="flex justify-between items-baseline">
-          <h2 className="font-headline text-3xl font-bold">오늘의 스펠카드</h2>
-        </div>
-         <p className="text-muted-foreground mt-1">우주가 당신만을 위해 보내는 오늘의 메시지.</p>
-        <div className="mt-6">
-          <DailySpellCard />
-        </div>
-      </section>
-
-      <section>
-        <div className="flex justify-between items-baseline">
-          <h2 className="font-headline text-3xl font-bold">최신 콘텐츠</h2>
-           <Button variant="link" className="text-primary">더 둘러보기</Button>
-        </div>
-        <p className="text-muted-foreground mt-1">전문가 커뮤니티의 지혜와 이야기.</p>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
-          {latestContent.slice(0, 2).map(content => (
-            <div key={content.id} className="group relative overflow-hidden rounded-xl shadow-md cursor-pointer transition-all hover:shadow-primary/20 hover:shadow-lg hover:-translate-y-1 aspect-[16/9]">
-              <Image src={content.image} alt={content.title} fill className="object-cover transition-transform duration-300 group-hover:scale-105" data-ai-hint={content.dataAiHint} />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent" />
-              <div className="absolute bottom-0 left-0 p-4 text-white">
-                <Badge variant="secondary" className="mb-2 text-secondary-foreground">{content.category}</Badge>
-                <h3 className="font-headline text-lg font-semibold">{content.title}</h3>
-              </div>
-            </div>
-          ))}
-        </div>
       </section>
     </div>
   );
