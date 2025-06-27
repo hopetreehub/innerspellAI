@@ -2,7 +2,7 @@
 'use client';
 
 import { useState } from 'react';
-import { notFound, useParams } from 'next/navigation';
+import { notFound, useParams, useRouter } from 'next/navigation';
 import { getConsultantById } from '@/lib/consultants';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -11,9 +11,12 @@ import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Star, ArrowLeft, ImagePlus } from 'lucide-react';
 import Link from 'next/link';
+import { useToast } from '@/hooks/use-toast';
 
 export default function NewReviewPage() {
   const params = useParams();
+  const router = useRouter();
+  const { toast } = useToast();
   const id = typeof params.id === 'string' ? params.id : '';
   const consultant = getConsultantById(id);
   const [rating, setRating] = useState(0);
@@ -29,6 +32,41 @@ export default function NewReviewPage() {
     if (e.target.files && e.target.files[0]) {
       setImageFile(e.target.files[0]);
     }
+  };
+  
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+
+    if (rating === 0) {
+      toast({
+        title: '입력 오류',
+        description: '별점을 선택해주세요.',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    if (!comment.trim()) {
+      toast({
+        title: '입력 오류',
+        description: '후기 내용을 입력해주세요.',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    // In a real application, you would send the data to your backend here.
+    console.log('Submitting review:', { rating, comment, imageFile, consultantId: id });
+
+    toast({
+      title: '후기 등록 완료',
+      description: '소중한 후기 감사합니다. 잠시 후 상세 페이지로 이동합니다.',
+    });
+
+    // Redirect back to the consultant detail page after a short delay
+    setTimeout(() => {
+      router.push(`/consultant/${consultant.id}`);
+    }, 1500);
   };
 
   return (
@@ -47,7 +85,7 @@ export default function NewReviewPage() {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <form className="space-y-6">
+          <form className="space-y-6" onSubmit={handleSubmit}>
             <div className="space-y-2">
               <Label>별점</Label>
               <div
