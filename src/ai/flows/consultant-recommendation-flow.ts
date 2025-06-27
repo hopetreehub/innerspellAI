@@ -13,7 +13,7 @@ import { z } from 'zod';
 const ChatbotInputSchema = z.object({
   messages: z.array(
     z.object({
-      role: z.enum(['user', 'assistant']),
+      role: z.enum(['user', 'model']),
       content: z.string(),
     })
   ),

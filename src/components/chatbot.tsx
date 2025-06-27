@@ -20,7 +20,7 @@ type Recommendation = {
 
 type Message = {
   id: string;
-  role: 'user' | 'assistant';
+  role: 'user' | 'model';
   content: string;
   recommendations?: Recommendation[];
 };
@@ -36,7 +36,7 @@ const initialCategories = [
 
 const initialBotMessage: Message = {
     id: crypto.randomUUID(),
-    role: 'assistant',
+    role: 'model',
     content: `안녕하세요! 이너스펠 AI입니다. 어떤 마음의 짐을 덜고 싶으신가요? 가장 고민되는 주제를 한 가지만 골라주시면, 길을 찾는 데 도움을 드릴게요.`
 };
 
@@ -76,7 +76,7 @@ export function Chatbot({ consultants }: { consultants: Consultant[] }) {
         
         const botMessage: Message = {
           id: crypto.randomUUID(),
-          role: 'assistant',
+          role: 'model',
           content: result.response,
           recommendations: result.recommendations,
         };
@@ -86,7 +86,7 @@ export function Chatbot({ consultants }: { consultants: Consultant[] }) {
         console.error('Error getting chatbot response:', error);
         const errorMessage: Message = {
           id: crypto.randomUUID(),
-          role: 'assistant',
+          role: 'model',
           content: '죄송합니다. AI 응답을 받아오는 과정에서 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.',
         };
         setMessages(prev => [...prev, errorMessage]);
@@ -120,7 +120,7 @@ export function Chatbot({ consultants }: { consultants: Consultant[] }) {
               key={message.id}
               className={`flex items-start gap-3 ${message.role === 'user' ? 'justify-end' : ''}`}
             >
-              {message.role === 'assistant' && (
+              {message.role === 'model' && (
                 <Avatar className="w-9 h-9 border-2 border-secondary/50">
                   <AvatarFallback className="bg-transparent">
                     <Bot className="w-5 h-5 text-secondary" />
