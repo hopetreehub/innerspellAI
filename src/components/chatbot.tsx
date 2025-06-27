@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useRef, useEffect, startTransition } from 'react';
@@ -27,8 +28,8 @@ export function Chatbot({ consultants }: { consultants: Consultant[] }) {
   const initialMessage: Message = {
     id: 'init',
     role: 'assistant',
-    content: "안녕하세요! '이너스펠 AI'입니다. 어떤 고민이 있으신가요? 가장 잘 맞는 상담사를 찾아드릴게요.",
-    options: ['연애/궁합', '직업/사업', '금전/재물', '인간관계', '기타'],
+    content: "안녕하세요! 이너스펠 AI입니다. 어떤 마음의 짐을 덜고 싶으신가요? 가장 고민되는 주제를 한 가지만 골라주시면, 길을 찾는 데 도움을 드릴게요.",
+    options: ['연애/재회/궁합', '직장/사업/재물', '학업/시험', '인간관계', '마음/건강', '기타'],
   };
 
   const [messages, setMessages] = useState<Message[]>([initialMessage]);
@@ -126,17 +127,16 @@ export function Chatbot({ consultants }: { consultants: Consultant[] }) {
   const showInput = !isLoading && lastMessage.role === 'assistant' && !lastMessage.options && !lastMessage.recommendations;
 
   return (
-    <Card className="w-full shadow-2xl shadow-primary/10 bg-black/40 backdrop-blur-xl border border-white/20 text-white rounded-2xl">
-      <CardHeader className="text-center border-b border-white/10 pb-4">
+    <Card className="w-full h-full shadow-2xl shadow-primary/10 bg-black/40 backdrop-blur-xl border border-white/20 text-white rounded-2xl flex flex-col">
+      <CardHeader className="text-center border-b border-white/10 pb-4 flex-shrink-0">
         <CardTitle className="font-headline text-2xl">AI 상담사 추천</CardTitle>
         <CardDescription className="text-white/70">당신의 고민에 가장 잘 맞는 상담사를 찾아드릴게요.</CardDescription>
       </CardHeader>
-      <CardContent className="p-0">
-        <div className="h-[500px] flex flex-col">
+      <CardContent className="p-0 flex-1 flex flex-col min-h-0">
+        <div className="flex-1 flex flex-col min-h-0">
           <ScrollArea
             className="flex-1 pr-1"
             ref={scrollAreaRef}
-            onWheel={(e) => e.stopPropagation()}
           >
             <div className="space-y-6 p-4 md:p-6">
               {messages.map((message) => (
@@ -152,7 +152,7 @@ export function Chatbot({ consultants }: { consultants: Consultant[] }) {
                     </Avatar>
                   )}
                   <div
-                    className={`rounded-2xl p-3 px-4 max-w-md prose prose-sm prose-invert break-words ${
+                    className={`rounded-2xl p-3 px-4 max-w-md lg:max-w-lg prose prose-sm prose-invert break-words ${
                       message.role === 'user'
                         ? 'bg-primary text-primary-foreground rounded-br-lg'
                         : 'bg-white/10 rounded-bl-lg'
@@ -222,7 +222,7 @@ export function Chatbot({ consultants }: { consultants: Consultant[] }) {
           </ScrollArea>
         
             {showInput && (
-                <div className="border-t border-white/10 p-4">
+                <div className="border-t border-white/10 p-4 flex-shrink-0">
                     <form
                         onSubmit={(e) => {
                             e.preventDefault();
