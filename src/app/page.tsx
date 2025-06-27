@@ -1,14 +1,12 @@
-import { matchConsultant, MatchConsultantOutput } from '@/ai/flows/ai-spell-matching';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from '@/components/ui/carousel';
 import { ConsultantCard } from '@/components/consultant-card';
 import { DailySpellCard } from '@/components/daily-spell-card';
-import { Sparkles, UserCheck2 } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 import Image from 'next/image';
 import { Badge } from '@/components/ui/badge';
+import { Chatbot } from '@/components/chatbot';
 
-type Consultant = {
+export type Consultant = {
   id: string;
   name: string;
   specialty: string;
@@ -29,12 +27,22 @@ type Content = {
 };
 
 const consultants: Consultant[] = [
-  { id: '1', name: 'Seraphina Moon', specialty: '타로', image: 'https://placehold.co/400x400.png', rating: 4.9, reviewCount: 281, status: 'available', keywords: ['사랑', '직업', '미래'], dataAiHint: 'woman mystic' },
-  { id: '2', name: 'Orion Sage', specialty: '점성술', image: 'https://placehold.co/400x400.png', rating: 4.8, reviewCount: 194, status: 'available', keywords: ['출생 차트', '궁합'], dataAiHint: 'man telescope' },
-  { id: '3', name: 'Luna Iris', specialty: '꿈 분석', image: 'https://placehold.co/400x400.png', rating: 4.9, reviewCount: 156, status: 'busy', keywords: ['상징', '잠재의식'], dataAiHint: 'woman sleeping' },
-  { id: '4', name: 'Jasper Vale', specialty: '수비학', image: 'https://placehold.co/400x400.png', rating: 4.7, reviewCount: 121, status: 'available', keywords: ['인생 경로', '운명'], dataAiHint: 'numbers code' },
-  { id: '5', name: 'Aria Whisper', specialty: '영매술', image: 'https://placehold.co/400x400.png', rating: 5.0, reviewCount: 98, status: 'busy', keywords: ['영적 안내자', '조상'], dataAiHint: 'candle light' },
-  { id: '6', name: 'Kai Solstice', specialty: '손금', image: 'https://placehold.co/400x400.png', rating: 4.6, reviewCount: 85, status: 'available', keywords: ['생명선', '감정선'], dataAiHint: 'open palm' },
+  { id: '1', name: '세라피나 문', specialty: '타로', image: '/con1.png', rating: 4.9, reviewCount: 281, status: 'available', keywords: ['타로', '연애', '미래', '여성', '따뜻함', '프리미엄'], dataAiHint: 'woman mystic' },
+  { id: '2', name: '오리온 세이지', specialty: '점성술', image: '/con2.png', rating: 4.8, reviewCount: 194, status: 'available', keywords: ['점성술', '출생 차트', '궁합', '남성', '논리적', '합리적'], dataAiHint: 'man telescope' },
+  { id: '3', name: '루나 아이리스', specialty: '해몽', image: '/con3.png', rating: 4.9, reviewCount: 156, status: 'busy', keywords: ['해몽', '상징', '잠재의식', '여성', '신비주의', '프리미엄'], dataAiHint: 'woman sleeping' },
+  { id: '4', name: '재스퍼 베일', specialty: '수비학', image: '/con4.png', rating: 4.7, reviewCount: 121, status: 'available', keywords: ['수비학', '인생 경로', '운명', '남성', '분석적', '합리적'], dataAiHint: 'numbers code' },
+  { id: '5', name: '아리아 위스퍼', specialty: '신점', image: '/con5.png', rating: 5.0, reviewCount: 98, status: 'busy', keywords: ['신점', '영적 안내', '조상', '여성', '직설적', '프리미엄'], dataAiHint: 'candle light' },
+  { id: '6', name: '카이 솔스티스', specialty: '손금', image: '/con6.png', rating: 4.6, reviewCount: 85, status: 'available', keywords: ['손금', '생명선', '감정선', '남성', '따뜻함', '합리적'], dataAiHint: 'open palm' },
+  { id: '7', name: '혜인 스님', specialty: '사주', image: '/con7.png', rating: 4.9, reviewCount: 312, status: 'available', keywords: ['사주', '명리학', '직업운', '남성', '근엄함', '프리미엄'], dataAiHint: 'monk meditating' },
+  { id: '8', name: '이로운', specialty: '작명', image: '/con8.png', rating: 4.8, reviewCount: 250, status: 'available', keywords: ['작명', '개명', '상호명', '남성', '논리적', '프리미엄'], dataAiHint: 'man writing' },
+  { id: '9', name: '김보살', specialty: '신점', image: '/con9.png', rating: 4.9, reviewCount: 420, status: 'busy', keywords: ['신점', '사업운', '금전운', '여성', '직설적', '명성'], dataAiHint: 'korean shaman' },
+  { id: '10', name: '하늘빛', specialty: '타로', image: '/con10.png', rating: 4.7, reviewCount: 180, status: 'available', keywords: ['타로', '인간관계', '심리', '여성', '공감적', '합리적'], dataAiHint: 'woman tarot' },
+  { id: '11', name: '도현', specialty: '풍수지리', image: '/con11.png', rating: 4.8, reviewCount: 140, status: 'available', keywords: ['풍수', '인테리어', '이사', '남성', '분석적', '프리미엄'], dataAiHint: 'man compass' },
+  { id: '12', name: '소정', specialty: '명상', image: '/con12.png', rating: 4.9, reviewCount: 110, status: 'available', keywords: ['명상', '마음챙김', '스트레스', '여성', '따뜻함', '합리적'], dataAiHint: 'woman meditating' },
+  { id: '13', name: '백도사', specialty: '관상', image: '/con13.png', rating: 4.7, reviewCount: 195, status: 'available', keywords: ['관상', '첫인상', '인생조언', '남성', '직설적', '경험많음'], dataAiHint: 'wise old man' },
+  { id: '14', name: '아라', specialty: '타로', image: '/con14.png', rating: 4.8, reviewCount: 220, status: 'busy', keywords: ['타로', '학업', '시험', '여성', '논리적', '합리적'], dataAiHint: 'young woman books' },
+  { id: '15', name: '정도령', specialty: '신점', image: '/con15.png', rating: 4.9, reviewCount: 350, status: 'available', keywords: ['신점', '결혼', '궁합', '남성', '따뜻함', '명성'], dataAiHint: 'korean young shaman' },
+  { id: '16', name: '유진', specialty: '사주', image: '/con16.png', rating: 4.8, reviewCount: 280, status: 'available', keywords: ['사주', '신년운세', '건강운', '여성', '분석적', '합리적'], dataAiHint: 'woman looking calendar' },
 ];
 
 const latestContent: Content[] = [
@@ -46,69 +54,21 @@ const latestContent: Content[] = [
 
 export default async function Home() {
   const userName = "탐험가";
-
-  let aiMatch: MatchConsultantOutput;
-
-  try {
-    const matchInput = {
-      profileData: "진로에 대해 불안해하며 명확성과 방향성을 찾고 있는 사용자. 부드럽고 공감적인 접근을 선호함.",
-      consultantSpecialties: consultants.map(c => c.specialty)
-    };
-    aiMatch = await matchConsultant(matchInput);
-  } catch (error) {
-    console.error("AI Spellmatch failed. This may be due to a missing or invalid API key.", error);
-    aiMatch = {
-      specialty: '타로',
-      matchReason: "현재 AI 매칭 서비스에 연결할 수 없습니다. 대중적인 선택에 따라, 일반적인 조언을 위해 타로 상담을 추천해 드립니다. Gemini API 키가 올바르게 설정되었는지 확인해주세요."
-    };
-  }
-  
-  const matchedConsultant = consultants.find(c => c.specialty === aiMatch.specialty) || consultants[0];
-  
   const availableConsultants = consultants.filter(c => c.status === 'available');
 
   return (
     <div className="container mx-auto px-4 py-8 md:py-12 space-y-16">
       
-      <section>
-        <h1 className="font-headline text-3xl md:text-4xl font-bold tracking-tight">
-          환영합니다, {userName}님.
+      <section className="text-center">
+        <h1 className="font-headline text-3xl md:text-5xl font-bold tracking-tight leading-tight">
+          당신만의 운명의 길잡이를<br />AI가 찾아드려요
         </h1>
-        <p className="text-muted-foreground mt-2 text-lg">
-          오늘 어떤 이야기들이 당신을 기다리고 있을까요?
+        <p className="text-muted-foreground mt-4 text-lg max-w-2xl mx-auto">
+          몇 가지 질문에 답하고, 당신의 고민에 꼭 맞는 최고의 상담사를 추천받으세요.
         </p>
-
-        <Card className="mt-8 bg-card/50 border-primary/20 border-dashed shadow-lg">
-          <CardHeader className="flex flex-row items-start gap-4">
-            <div className="p-3 bg-primary/10 rounded-full">
-              <Sparkles className="w-6 h-6 text-primary" />
-            </div>
-            <div>
-              <CardTitle className="font-headline text-2xl">당신을 위한 AI 스펠매치</CardTitle>
-              <CardDescription className="mt-1">
-                당신의 에너지에 기반하여, 당신에게 맞는 분을 찾아냈어요.
-              </CardDescription>
-            </div>
-          </CardHeader>
-          <CardContent className="flex flex-col md:flex-row items-center gap-6">
-            <div className="w-full md:w-1/3">
-              <ConsultantCard consultant={matchedConsultant} />
-            </div>
-            <div className="flex-1 space-y-4">
-              <div className="flex items-center gap-3">
-                <UserCheck2 className="w-5 h-5 text-accent-foreground" />
-                <h4 className="font-headline font-semibold text-lg">추천 이유:</h4>
-              </div>
-              <p className="text-muted-foreground leading-relaxed">
-                {aiMatch.matchReason}
-              </p>
-              <Button size="lg" className="mt-2 group">
-                {matchedConsultant.name}님과 연결하기
-                <Sparkles className="w-4 h-4 ml-2 group-hover:scale-125 transition-transform" />
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
+        <div className="mt-8 max-w-3xl mx-auto">
+           <Chatbot consultants={consultants} />
+        </div>
       </section>
 
       <section>
