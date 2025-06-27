@@ -26,17 +26,38 @@ type Message = {
 };
 
 export function Chatbot({ consultants }: { consultants: Consultant[] }) {
-  const initialMessage: Message = {
-    id: 'init',
-    role: 'assistant',
-    content: "안녕하세요! 이너스펠 AI입니다. 어떤 마음의 짐을 덜고 싶으신가요? 제가 당신에게 꼭 맞는 상담사를 찾아드릴게요.",
-  };
-
-  const [messages, setMessages] = useState<Message[]>([initialMessage]);
-  const [isLoading, setIsLoading] = useState(false);
+  const [messages, setMessages] = useState<Message[]>([]);
+  const [isLoading, setIsLoading] = useState(true); // Start loading initially
   const [inputValue, setInputValue] = useState('');
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
+
+  useEffect(() => {
+    // Fetch the initial message from the AI when the component mounts
+    const getInitialMessage = async () => {
+      try {
+        const result = await getChatbotResponse({ messages: [] });
+        const botMessage: Message = {
+          id: crypto.randomUUID(),
+          role: 'assistant',
+          content: result.response,
+          recommendations: result.recommendations,
+        };
+        setMessages([botMessage]);
+      } catch (error) {
+        console.error('Error getting initial chatbot response:', error);
+        const errorMessage: Message = {
+          id: crypto.randomUUID(),
+          role: 'assistant',
+          content: '죄송합니다. 챗봇을 시작하는 중 오류가 발생했어요. 잠시 후 다시 시도해주세요.',
+        };
+        setMessages([errorMessage]);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    getInitialMessage();
+  }, []);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -44,9 +65,11 @@ export function Chatbot({ consultants }: { consultants: Consultant[] }) {
 
   useEffect(() => {
     const lastMessage = messages[messages.length - 1];
-    const hasRecommendations = lastMessage.recommendations && lastMessage.recommendations.length > 0;
-    if (inputRef.current && !isLoading && lastMessage.role === 'assistant' && !hasRecommendations) {
-      inputRef.current.focus();
+    if (lastMessage && !isLoading && lastMessage.role === 'assistant') {
+        const hasRecommendations = lastMessage.recommendations && lastMessage.recommendations.length > 0;
+        if (inputRef.current && !hasRecommendations) {
+          inputRef.current.focus();
+        }
     }
   }, [messages, isLoading]);
 
