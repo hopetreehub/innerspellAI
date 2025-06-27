@@ -19,7 +19,7 @@ const ConsultantSchema = z.object({
 });
 
 // 챗봇 플로우의 입력 스키마 정의
-export const ChatbotInputSchema = z.object({
+const ChatbotInputSchema = z.object({
   messages: z.array(
     z.object({
       role: z.enum(['user', 'assistant']),
@@ -31,7 +31,7 @@ export const ChatbotInputSchema = z.object({
 export type ChatbotInput = z.infer<typeof ChatbotInputSchema>;
 
 // 챗봇 플로우의 출력 스키마 정의
-export const ChatbotOutputSchema = z.object({
+const ChatbotOutputSchema = z.object({
   response: z.string().describe('챗봇의 다음 응답 메시지'),
 });
 export type ChatbotOutput = z.infer<typeof ChatbotOutputSchema>;
