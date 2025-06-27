@@ -116,8 +116,7 @@ export function Chatbot({ consultants }: { consultants: Consultant[] }) {
   };
 
   const lastMessage = messages[messages.length - 1];
-  const showInputForm = !lastMessage.recommendations || lastMessage.recommendations.length === 0;
-
+  const isConversationDone = lastMessage.recommendations && lastMessage.recommendations.length > 0;
 
   return (
     <Card className="w-full h-full shadow-2xl shadow-primary/10 bg-black/40 backdrop-blur-xl border border-white/20 text-white rounded-2xl flex flex-col">
@@ -215,38 +214,33 @@ export function Chatbot({ consultants }: { consultants: Consultant[] }) {
       </CardContent>
       
       <div className="border-t border-white/10 p-4 flex-shrink-0 bg-black/40 rounded-b-2xl">
-        {showInputForm ? (
-            <form
-                onSubmit={(e) => {
-                    e.preventDefault();
-                    handleSendMessage(inputValue);
-                }}
-                className="relative"
-            >
-                <Textarea
-                    ref={inputRef}
-                    value={inputValue}
-                    onChange={(e) => setInputValue(e.target.value)}
-                    onKeyDown={handleKeyDown}
-                    placeholder={isLoading ? "AI가 답변을 생각하고 있어요..." : "자세한 고민을 이야기해주세요..."}
-                    className="bg-white/10 border-white/20 text-white placeholder:text-white/60 focus:ring-secondary min-h-[80px] resize-none pr-14"
-                    autoComplete="off"
-                    rows={3}
-                    disabled={isLoading}
-                />
-                <Button type="submit" size="icon" className="bg-secondary hover:bg-secondary/90 flex-shrink-0 absolute right-3 bottom-3 h-9 w-9" disabled={isLoading || !inputValue.trim()}>
-                    <Send className="h-4 w-4" />
-                    <span className="sr-only">전송</span>
-                </Button>
-            </form>
-        ) : (
-            <div className="text-center text-white/70 text-sm flex items-center justify-center min-h-[80px]">
-                <div>
-                    <p>추천이 완료되었습니다.</p>
-                    <p className='mt-1'>대화를 다시 시작하려면 창을 닫고 새로 열어주세요.</p>
-                </div>
-            </div>
-        )}
+          <form
+              onSubmit={(e) => {
+                  e.preventDefault();
+                  handleSendMessage(inputValue);
+              }}
+              className="relative"
+          >
+              <Textarea
+                  ref={inputRef}
+                  value={inputValue}
+                  onChange={(e) => setInputValue(e.target.value)}
+                  onKeyDown={handleKeyDown}
+                  placeholder={
+                    isLoading ? "AI가 답변을 생각하고 있어요..." :
+                    isConversationDone ? "추천이 완료되었습니다. 다시 시작하려면 창을 닫아주세요." :
+                    "자세한 고민을 이야기해주세요..."
+                  }
+                  className="bg-white/10 border-white/20 text-white placeholder:text-white/60 focus:ring-secondary min-h-[80px] resize-none pr-14"
+                  autoComplete="off"
+                  rows={3}
+                  disabled={isLoading || isConversationDone}
+              />
+              <Button type="submit" size="icon" className="bg-secondary hover:bg-secondary/90 flex-shrink-0 absolute right-3 bottom-3 h-9 w-9" disabled={isLoading || isConversationDone || !inputValue.trim()}>
+                  <Send className="h-4 w-4" />
+                  <span className="sr-only">전송</span>
+              </Button>
+          </form>
       </div>
     </Card>
   );
