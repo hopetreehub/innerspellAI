@@ -5,11 +5,12 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Star, Phone, Wallet } from 'lucide-react';
 import type { Consultant } from '@/types/consultant';
+import { cn } from '@/lib/utils';
 
 export function ConsultantCard({ consultant }: { consultant: Consultant }) {
   return (
-    <Link href={`/consultant/${consultant.id}`} className="block">
-      <Card className="w-full overflow-hidden transition-all hover:shadow-primary/20 hover:shadow-lg hover:-translate-y-1 flex h-full">
+    <Link href={`/consultant/${consultant.id}`} className="block group">
+      <Card className="w-full overflow-hidden transition-all group-hover:shadow-primary/20 group-hover:shadow-lg group-hover:-translate-y-1 flex h-full">
         <div className="relative w-1/3 aspect-[4/5]">
           <Image
             src={consultant.image}
@@ -19,18 +20,20 @@ export function ConsultantCard({ consultant }: { consultant: Consultant }) {
             sizes="(max-width: 640px) 33vw, (max-width: 1024px) 16vw, 12vw"
             data-ai-hint={consultant.dataAiHint}
           />
+           <div className="absolute top-2 left-2 flex items-center gap-1.5 bg-black/50 backdrop-blur-sm text-white text-[10px] px-2 py-0.5 rounded-full border border-white/30">
+            <span className={cn(
+              "w-2 h-2 rounded-full",
+              consultant.status === 'available' ? 'bg-green-500' : 'bg-red-500'
+            )}></span>
+            <span>{consultant.status === 'available' ? '상담가능' : '상담중'}</span>
+          </div>
         </div>
         <div className="p-3 flex flex-col justify-between flex-1 w-2/3">
           <div>
-            <div className="flex items-center justify-between gap-2">
-              <h3 className="font-headline text-base font-semibold truncate leading-tight">
-                {consultant.name}
-                <span className="text-sm text-muted-foreground ml-1.5 font-normal">[{consultant.phoneId}]</span>
-              </h3>
-              <Badge variant={consultant.status === 'available' ? "secondary" : "outline"} className={`text-xs px-1.5 py-0.5 ${consultant.status === 'available' ? 'text-secondary-foreground' : 'bg-black/50 text-white backdrop-blur-sm border-white/50'}`}>
-                {consultant.status === 'available' ? '상담가능' : '상담중'}
-              </Badge>
-            </div>
+             <h3 className="font-headline text-lg font-semibold leading-tight">
+              {consultant.name}
+              <span className="text-base text-muted-foreground ml-1 font-normal">[{consultant.phoneId}]</span>
+            </h3>
             <p className="text-xs text-muted-foreground mt-0.5">{consultant.specialty}</p>
             <div className="flex items-center gap-1 mt-1">
               <Star className="w-3 h-3 fill-secondary text-secondary" />

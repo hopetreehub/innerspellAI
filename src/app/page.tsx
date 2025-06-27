@@ -28,15 +28,26 @@ const latestContent: Content[] = [
     { id: '4', title: "초심자를 위한 명상 가이드", category: "웰빙", image: "https://placehold.co/800x450.png", dataAiHint: 'serene landscape' },
 ];
 
+const specialties = ['전체', ...Array.from(new Set(consultants.map(c => c.specialty)))];
+
 export default function Home() {
   const [isChatbotOpen, setIsChatbotOpen] = useState(false);
-
-  // Pagination state
+  
+  const [selectedSpecialty, setSelectedSpecialty] = useState('전체');
   const [currentPage, setCurrentPage] = useState(1);
-  const consultantsPerPage = 8;
-  const totalPages = Math.ceil(consultants.length / consultantsPerPage);
+  const consultantsPerPage = 24;
 
-  const currentConsultants = consultants.slice(
+  const handleSpecialtyChange = (specialty: string) => {
+    setSelectedSpecialty(specialty);
+    setCurrentPage(1);
+  };
+
+  const filteredConsultants = selectedSpecialty === '전체'
+    ? consultants
+    : consultants.filter(c => c.specialty === selectedSpecialty);
+
+  const totalPages = Math.ceil(filteredConsultants.length / consultantsPerPage);
+  const currentConsultants = filteredConsultants.slice(
     (currentPage - 1) * consultantsPerPage,
     currentPage * consultantsPerPage
   );
@@ -45,7 +56,6 @@ export default function Home() {
     if (page < 1 || page > totalPages) return;
     setCurrentPage(page);
   };
-
 
   return (
     <div className="container mx-auto px-4 py-8 md:py-12 space-y-16">
@@ -86,12 +96,25 @@ export default function Home() {
       </section>
 
       <section>
-        <div className="flex justify-between items-baseline">
+        <div className="flex justify-between items-baseline mb-4">
           <h2 className="font-headline text-3xl font-bold">상담사 전체보기</h2>
         </div>
-        <p className="text-muted-foreground mt-1">당신에게 맞는 상담사를 찾아보세요.</p>
+        <p className="text-muted-foreground mt-1 mb-6">당신에게 맞는 상담사를 찾아보세요.</p>
         
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mt-6">
+        <div className="flex flex-wrap gap-2 mb-6">
+          {specialties.map((specialty) => (
+            <Button
+              key={specialty}
+              variant={selectedSpecialty === specialty ? 'default' : 'outline'}
+              onClick={() => handleSpecialtyChange(specialty)}
+              className="rounded-full"
+            >
+              {specialty}
+            </Button>
+          ))}
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
             {currentConsultants.map((consultant) => (
                 <ConsultantCard key={consultant.id} consultant={consultant as Consultant} />
             ))}
