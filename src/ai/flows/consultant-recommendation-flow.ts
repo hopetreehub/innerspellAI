@@ -69,16 +69,30 @@ const chatbotFlow = ai.defineFlow(
     try {
         const aiConfig = await getAiConfig();
 
-        // Define the prompt dynamically using the configuration from the admin page
-        const chatbotPrompt = ai.definePrompt({
-            name: `chatbotPrompt_dynamic_${Date.now()}`, // Use a dynamic name to avoid caching issues
-            input: { schema: ChatbotInputSchema },
-            output: { schema: ChatbotOutputSchema },
-            prompt: aiConfig.systemPrompt,
-            model: ai.model(aiConfig.model), // Use the configured model
-        });
+        // The previous implementation defined a prompt dynamically on every call,
+        // which is not standard practice. We now use ai.generate directly.
+        const systemPrompt = aiConfig.systemPrompt.replace(
+            '{{{json consultants}}}',
+            JSON.stringify(input.consultants)
+        );
 
-        const { output } = await chatbotPrompt(input);
+        // Convert messages to Genkit's format and separate history from the latest prompt.
+        const history = input.messages.map(msg => ({
+            role: msg.role === 'assistant' ? ('model' as const) : ('user' as const),
+            content: [{ text: msg.content }]
+        }));
+
+        const { output } = await ai.generate({
+            model: ai.model(aiConfig.model),
+            history: history,
+            prompt: '', // We pass the full conversation in `history`, so the main prompt is empty.
+            system: systemPrompt,
+            output: {
+                schema: ChatbotOutputSchema,
+                format: 'json',
+            },
+        });
+        
         return output || { response: "죄송합니다. 응답을 생성하는 데 문제가 발생했습니다. 잠시 후 다시 시도해주세요." };
     } catch (error) {
         console.error("Chatbot flow error:", error);
