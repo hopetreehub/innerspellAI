@@ -11,20 +11,25 @@ import { Bot, User, CircleDashed, Send } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import type { Consultant } from '@/types/consultant';
+import { ConsultantCard } from './consultant-card';
+
+type Recommendation = {
+  id: string;
+  reason: string;
+};
 
 type Message = {
   id: string;
   role: 'user' | 'assistant';
   content: string;
-  options?: string[];
+  recommendations?: Recommendation[];
 };
 
 export function Chatbot({ consultants }: { consultants: Consultant[] }) {
   const initialMessage: Message = {
     id: 'init',
     role: 'assistant',
-    content: "안녕하세요! 이너스펠 AI입니다. 어떤 마음의 짐을 덜고 싶으신가요? 가장 고민되는 주제를 한 가지만 골라주시면, 길을 찾는 데 도움을 드릴게요.",
-    options: ['연애/재회/궁합', '직장/사업/재물', '학업/시험', '인간관계', '마음/건강', '기타'],
+    content: "안녕하세요! 이너스펠 AI입니다. 어떤 마음의 짐을 덜고 싶으신가요? 제가 당신에게 꼭 맞는 상담사를 찾아드릴게요.",
   };
 
   const [messages, setMessages] = useState<Message[]>([initialMessage]);
@@ -39,12 +44,13 @@ export function Chatbot({ consultants }: { consultants: Consultant[] }) {
 
   useEffect(() => {
     const lastMessage = messages[messages.length - 1];
-    if (inputRef.current && !isLoading && lastMessage.role === 'assistant') {
+    const hasRecommendations = lastMessage.recommendations && lastMessage.recommendations.length > 0;
+    if (inputRef.current && !isLoading && lastMessage.role === 'assistant' && !hasRecommendations) {
       inputRef.current.focus();
     }
   }, [messages, isLoading]);
 
-  const handleSendMessage = async (content: string, isOptionClick = false) => {
+  const handleSendMessage = async (content: string) => {
     if (isLoading || !content.trim()) return;
 
     const userMessage: Message = {
@@ -54,12 +60,6 @@ export function Chatbot({ consultants }: { consultants: Consultant[] }) {
     };
 
     const newMessages = [...messages, userMessage];
-    if (isOptionClick) {
-      const lastBotMessageIndex = newMessages.findLastIndex(m => m.role === 'assistant');
-      if (lastBotMessageIndex !== -1) {
-        newMessages[lastBotMessageIndex].options = undefined;
-      }
-    }
     setMessages(newMessages);
     setIsLoading(true);
     setInputValue('');
@@ -67,17 +67,13 @@ export function Chatbot({ consultants }: { consultants: Consultant[] }) {
     startTransition(async () => {
       try {
         const history = newMessages.map(({ role, content }) => ({ role, content }));
-        const resultText = await getChatbotResponse({ messages: history }); 
+        const result = await getChatbotResponse({ messages: history }); 
         
-        const optionRegex = /\[([^\]]+)\]/g;
-        const extractedOptions = [...resultText.matchAll(optionRegex)].map(match => match[1]);
-        const cleanedResponse = resultText.replace(optionRegex, '').trim();
-
         const botMessage: Message = {
           id: crypto.randomUUID(),
           role: 'assistant',
-          content: cleanedResponse,
-          options: extractedOptions.length > 0 ? extractedOptions : undefined,
+          content: result.response,
+          recommendations: result.recommendations,
         };
 
         setMessages(prev => [...prev, botMessage]);
@@ -101,8 +97,9 @@ export function Chatbot({ consultants }: { consultants: Consultant[] }) {
         handleSendMessage(inputValue);
     }
   };
-
-  const isConversationDone = false; // Disable the "done" state for now.
+  
+  const lastMessage = messages[messages.length - 1];
+  const hasRecommendations = lastMessage?.recommendations && lastMessage.recommendations.length > 0;
 
   return (
     <Card className="w-full h-full shadow-2xl shadow-primary/10 bg-black/40 backdrop-blur-xl border border-white/20 text-white rounded-2xl flex flex-col overflow-hidden">
@@ -136,21 +133,23 @@ export function Chatbot({ consultants }: { consultants: Consultant[] }) {
                     {message.content}
                  </ReactMarkdown>
                 
-                {message.options && (
-                  <div className="flex flex-wrap gap-2 mt-4 not-prose">
-                    {message.options.map((option) => (
-                      <Button
-                        key={option}
-                        variant="outline"
-                        size="sm"
-                        onClick={() => handleSendMessage(option, true)}
-                        className="bg-white/10 border-white/20 hover:bg-white/20 text-white rounded-full"
-                        disabled={isLoading}
-                      >
-                        {option}
-                      </Button>
-                    ))}
-                  </div>
+                 {message.recommendations && message.recommendations.length > 0 && (
+                    <div className="mt-4 space-y-3 not-prose">
+                        {message.recommendations.map(rec => {
+                            const consultant = consultants.find(c => c.id === rec.id);
+                            if (!consultant) return null;
+                            return (
+                                <div key={rec.id}>
+                                    <div className="bg-background/20 rounded-lg border border-white/20">
+                                        <ConsultantCard consultant={consultant as Consultant} />
+                                    </div>
+                                    <p className="text-xs text-white/80 italic mt-2 px-2">
+                                        <strong>추천 이유:</strong> {rec.reason}
+                                    </p>
+                                </div>
+                            )
+                        })}
+                    </div>
                 )}
               </div>
               {message.role === 'user' && (
@@ -194,15 +193,15 @@ export function Chatbot({ consultants }: { consultants: Consultant[] }) {
                   onKeyDown={handleKeyDown}
                   placeholder={
                     isLoading ? "AI가 답변을 생각하고 있어요..." :
-                    isConversationDone ? "추천이 완료되었습니다. 다시 시작하려면 창을 닫아주세요." :
+                    hasRecommendations ? "추천이 완료되었습니다. 상담사를 선택해주세요." :
                     "자세한 고민을 이야기해주세요..."
                   }
                   className="bg-white/10 border-white/20 text-white placeholder:text-white/60 focus:ring-secondary min-h-[80px] resize-none pr-14"
                   autoComplete="off"
                   rows={3}
-                  disabled={isLoading || isConversationDone}
+                  disabled={isLoading || hasRecommendations}
               />
-              <Button type="submit" size="icon" className="bg-secondary hover:bg-secondary/90 flex-shrink-0 absolute right-3 bottom-3 h-9 w-9" disabled={isLoading || isConversationDone || !inputValue.trim()}>
+              <Button type="submit" size="icon" className="bg-secondary hover:bg-secondary/90 flex-shrink-0 absolute right-3 bottom-3 h-9 w-9" disabled={isLoading || hasRecommendations || !inputValue.trim()}>
                   <Send className="h-4 w-4" />
                   <span className="sr-only">전송</span>
               </Button>
