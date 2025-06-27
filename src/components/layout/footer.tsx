@@ -17,8 +17,8 @@ export function AppFooter() {
             <h4 className="font-semibold text-sm">바로가기</h4>
             <ul className="space-y-2 mt-2">
               <li><Link href="#" className="text-sm text-muted-foreground hover:text-foreground">상담사 찾기</Link></li>
-              <li><Link href="#" className="text-sm text-muted-foreground hover:text-foreground">콘텐츠</Link></li>
-              <li><Link href="#" className="text-sm text-muted-foreground hover:text-foreground">커뮤니티</Link></li>
+              <li><Link href="/content" className="text-sm text-muted-foreground hover:text-foreground">콘텐츠</Link></li>
+              <li><Link href="/community" className="text-sm text-muted-foreground hover:text-foreground">커뮤니티</Link></li>
             </ul>
           </div>
           <div>
@@ -30,12 +30,15 @@ export function AppFooter() {
             </form>
           </div>
         </div>
-        <div className="border-t border-border/40 mt-8 pt-6 text-center">
+        <div className="border-t border-border/40 mt-8 pt-6">
+           <div className="text-xs text-muted-foreground text-center space-y-2 mb-4">
+             <p>innerspell 은 통신판매중개자로서 통신판매의 당사자가 아니며, 각 판매자 (상담사)가 등록한 정보 및 거래에 대한 책임은 각 판매자(상담사)에게 있으며,innerspell 는 책임을 지지 않습니다.</p>
+          </div>
           <div className="flex justify-center gap-4 mb-4">
              <Link href="#" className="text-sm text-muted-foreground hover:text-foreground">이용약관</Link>
              <Link href="#" className="text-sm text-muted-foreground hover:text-foreground">개인정보처리방침</Link>
           </div>
-          <p className="text-xs text-muted-foreground">
+          <p className="text-xs text-muted-foreground text-center">
             © {new Date().getFullYear()} Innerspellhub. All Rights Reserved.
           </p>
         </div>
@@ -43,5 +46,3 @@ export function AppFooter() {
     </footer>
   );
 }
-
-    

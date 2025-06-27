@@ -10,26 +10,23 @@ import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { Textarea } from '@/components/ui/textarea';
-import { Star, Phone, MessageSquarePlus, PenSquare, Wallet, ThumbsUp, Share2, MessageCircle, Lock, Unlock, CornerDownRight } from 'lucide-react';
+import { Star, Phone, MessageSquarePlus, PenSquare, Wallet, ThumbsUp, Share2, MessageCircle, Lock, Unlock, CornerDownRight, Gift } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
+import { Progress } from '@/components/ui/progress';
+import { Separator } from '@/components/ui/separator';
 
-function StarRating({ rating, reviewCount }: { rating: number, reviewCount: number }) {
+function SummaryBar({ label, value, total }: { label: string, value: number, total: number }) {
+  const percentage = total > 0 ? (value / total) * 100 : 0;
   return (
-    <div className="flex items-center gap-2">
-      <div className="flex items-center">
-        {[...Array(5)].map((_, i) => (
-          <Star
-            key={i}
-            className={`w-5 h-5 ${i < Math.round(rating) ? 'text-secondary fill-secondary' : 'text-muted-foreground/50'}`}
-          />
-        ))}
-      </div>
-      <span className="font-bold text-lg">{rating.toFixed(1)}</span>
-      <span className="text-sm text-muted-foreground">({reviewCount}개 후기)</span>
+    <div className="flex items-center gap-4 text-sm">
+      <span className="w-28 shrink-0 text-muted-foreground">{label}</span>
+      <Progress value={percentage} className="h-2 flex-1 bg-muted" />
+      <span className="w-8 shrink-0 text-right font-medium text-foreground">{value}</span>
     </div>
   );
 }
+
 
 export default function ConsultantDetailPage() {
   const params = useParams();
@@ -39,6 +36,9 @@ export default function ConsultantDetailPage() {
   if (!consultant) {
     notFound();
   }
+  
+  const totalStyleReviews = consultant.reviewSummary ? Object.values(consultant.reviewSummary.style).reduce((a, b) => a + b, 0) : 0;
+  const totalFieldReviews = consultant.reviewSummary ? Object.values(consultant.reviewSummary.field).reduce((a, b) => a + b, 0) : 0;
 
   return (
     <div className="container mx-auto px-4 py-8 md:py-12">
@@ -208,25 +208,74 @@ export default function ConsultantDetailPage() {
                             </Button>
                         </div>
                     </CardHeader>
-                    <CardContent className="space-y-6">
-                       <StarRating rating={consultant.rating} reviewCount={consultant.reviewCount} />
-                       <hr className="border-border" />
-                       {consultant.reviews.map(review => (
-                         <div key={review.id} className="space-y-2">
-                            <div className="flex items-center justify-between">
-                                <div className="flex items-center gap-2">
-                                    <h4 className="font-semibold">{review.author}</h4>
-                                    <div className="flex items-center">
-                                    {[...Array(5)].map((_, i) => (
-                                      <Star key={i} className={`w-4 h-4 ${i < review.rating ? 'text-secondary fill-secondary' : 'text-muted-foreground/30'}`} />
-                                    ))}
-                                    </div>
+                    <CardContent className="space-y-8">
+                       {/* Review Summary Section */}
+                        <div className="space-y-6">
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <Card className="p-4 bg-muted/30 border-0">
+                                <CardDescription>총 상담 후기</CardDescription>
+                                <CardTitle className="text-4xl">{consultant.reviewCount}<span className="text-lg font-medium ml-1">건</span></CardTitle>
+                            </Card>
+                            <Card className="p-4 bg-muted/30 border-0">
+                                <CardDescription>5점 만족도</CardDescription>
+                                <div className="flex items-baseline gap-2">
+                                <CardTitle className="text-4xl">{consultant.satisfaction || 95}<span className="text-lg font-medium ml-1">%</span></CardTitle>
+                                <div className="flex items-center">
+                                    <Star className="w-4 h-4 text-secondary fill-secondary" />
                                 </div>
-                                <span className="text-xs text-muted-foreground">{review.createdAt}</span>
+                                </div>
+                            </Card>
                             </div>
-                            <p className="text-sm text-foreground/90 bg-muted/50 p-3 rounded-md">{review.comment}</p>
-                         </div>
-                       ))}
+
+                            <div className="bg-muted/30 rounded-lg p-3 text-center text-sm text-primary flex items-center justify-center gap-2 font-semibold">
+                                <Gift className="w-4 h-4 text-yellow-500"/>
+                                후기 작성 시 코인을 선물로 드립니다!
+                            </div>
+
+                            {consultant.reviewSummary && (
+                            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 pt-4">
+                                <div className="space-y-4">
+                                  <h4 className="font-semibold">상담스타일 😊</h4>
+                                  <div className="space-y-3">
+                                    {Object.entries(consultant.reviewSummary.style).map(([label, value]) => (
+                                      <SummaryBar key={label} label={label} value={value} total={totalStyleReviews} />
+                                    ))}
+                                  </div>
+                                </div>
+                                <div className="space-y-4">
+                                  <h4 className="font-semibold">상담분야 💖</h4>
+                                  <div className="space-y-3">
+                                    {Object.entries(consultant.reviewSummary.field).map(([label, value]) => (
+                                      <SummaryBar key={label} label={label} value={value} total={totalFieldReviews} />
+                                    ))}
+                                  </div>
+                                </div>
+                            </div>
+                            )}
+                        </div>
+
+                       <Separator />
+
+                       {/* Existing Reviews List */}
+                       <div className="space-y-6">
+                           <h3 className="font-semibold text-lg">전체 후기 ({consultant.reviewCount}개)</h3>
+                           {consultant.reviews.map(review => (
+                             <div key={review.id} className="space-y-2 border-b border-border pb-4 last:border-b-0 last:pb-0">
+                                <div className="flex items-center justify-between">
+                                    <div className="flex items-center gap-2">
+                                        <h4 className="font-semibold">{review.author}</h4>
+                                        <div className="flex items-center">
+                                        {[...Array(5)].map((_, i) => (
+                                          <Star key={i} className={`w-4 h-4 ${i < review.rating ? 'text-secondary fill-secondary' : 'text-muted-foreground/30'}`} />
+                                        ))}
+                                        </div>
+                                    </div>
+                                    <span className="text-xs text-muted-foreground">{review.createdAt}</span>
+                                </div>
+                                <p className="text-sm text-foreground/90 bg-muted/50 p-3 rounded-md">{review.comment}</p>
+                             </div>
+                           ))}
+                       </div>
                     </CardContent>
                 </Card>
             </TabsContent>

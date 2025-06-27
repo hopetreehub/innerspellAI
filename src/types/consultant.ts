@@ -27,6 +27,11 @@ export type Inquiry = {
   }
 };
 
+export type ReviewSummary = {
+  style: Record<string, number>;
+  field: Record<string, number>;
+};
+
 export type Consultant = {
   id: string;
   name: string;
@@ -43,5 +48,6 @@ export type Consultant = {
   reviews: Review[];
   posts: Post[];
   inquiries: Inquiry[];
+  satisfaction?: number;
+  reviewSummary?: ReviewSummary;
 };
-
