@@ -79,15 +79,10 @@ const chatbotFlow = ai.defineFlow(
     try {
       const history = input.messages;
 
-      // When the conversation starts, history is empty. We need an initial prompt.
-      const prompt = history.length > 0 
-        ? history 
-        : "You are the AI assistant. Greet the user and start the conversation by following the instructions in your system prompt.";
-
       const { output } = await ai.generate({
         model: 'googleai/gemini-1.5-flash-latest',
         system: systemPrompt,
-        prompt: prompt,
+        prompt: history,
         tools: [getConsultantsTool],
         output: {
           schema: ChatbotOutputSchema,

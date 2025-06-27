@@ -25,51 +25,31 @@ type Message = {
   recommendations?: Recommendation[];
 };
 
+const initialBotMessage: Message = {
+    id: crypto.randomUUID(),
+    role: 'assistant',
+    content: `안녕하세요! 이너스펠 AI입니다. 어떤 마음의 짐을 덜고 싶으신가요? 가장 고민되는 주제를 한 가지만 골라주시면, 길을 찾는 데 도움을 드릴게요.
+
+- 연애/재회/궁합
+- 직장/사업/재물
+- 가족/인간관계
+- 학업/진로
+- 심리/건강
+- 기타`
+};
+
+
 export function Chatbot({ consultants }: { consultants: Consultant[] }) {
-  const [messages, setMessages] = useState<Message[]>([]);
-  const [isLoading, setIsLoading] = useState(true); // Start loading initially
+  const [messages, setMessages] = useState<Message[]>([initialBotMessage]);
+  const [isLoading, setIsLoading] = useState(false);
   const [inputValue, setInputValue] = useState('');
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
 
   useEffect(() => {
-    // Fetch the initial message from the AI when the component mounts
-    const getInitialMessage = async () => {
-      try {
-        const result = await getChatbotResponse({ messages: [] });
-        const botMessage: Message = {
-          id: crypto.randomUUID(),
-          role: 'assistant',
-          content: result.response,
-          recommendations: result.recommendations,
-        };
-        setMessages([botMessage]);
-      } catch (error) {
-        console.error('Error getting initial chatbot response:', error);
-        const errorMessage: Message = {
-          id: crypto.randomUUID(),
-          role: 'assistant',
-          content: '죄송합니다. 챗봇을 시작하는 중 오류가 발생했어요. 잠시 후 다시 시도해주세요.',
-        };
-        setMessages([errorMessage]);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-    getInitialMessage();
-  }, []);
-
-  useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [messages, isLoading]);
-
-  useEffect(() => {
-    const lastMessage = messages[messages.length - 1];
-    if (lastMessage && !isLoading && lastMessage.role === 'assistant') {
-        const hasRecommendations = lastMessage.recommendations && lastMessage.recommendations.length > 0;
-        if (inputRef.current && !hasRecommendations) {
-          inputRef.current.focus();
-        }
+    if (!isLoading && inputRef.current) {
+        inputRef.current.focus();
     }
   }, [messages, isLoading]);
 
@@ -105,7 +85,7 @@ export function Chatbot({ consultants }: { consultants: Consultant[] }) {
         const errorMessage: Message = {
           id: crypto.randomUUID(),
           role: 'assistant',
-          content: '죄송합니다. 오류가 발생했어요. 잠시 후 다시 시도해주세요.',
+          content: '죄송합니다. AI 응답을 받아오는 과정에서 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.',
         };
         setMessages(prev => [...prev, errorMessage]);
       } finally {
