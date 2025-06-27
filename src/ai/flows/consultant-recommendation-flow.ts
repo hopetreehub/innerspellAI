@@ -60,7 +60,8 @@ const chatbotFlow = ai.defineFlow(
     outputSchema: ChatbotOutputSchema,
   },
   async (input) => {
-    if (!process.env.GEMINI_API_KEY) {
+    if (!process.env.GEMINI_API_KEY && !process.env.GOOGLE_API_KEY) {
+        console.error("GEMINI/GOOGLE API Key not found in environment variables.");
         return {
             response: 'AI 기능을 설정하는 중 오류가 발생했습니다. 관리자에게 문의해주세요. (API 키가 설정되지 않았습니다.)'
         };
@@ -79,7 +80,7 @@ const chatbotFlow = ai.defineFlow(
             content: [{ text: msg.content }]
         }));
 
-        const { output } = await ai.generate({
+        const result = await ai.generate({
             model: aiConfig.model,
             history: history,
             prompt: '', // We pass the full conversation in `history`, so the main prompt is empty.
@@ -90,7 +91,13 @@ const chatbotFlow = ai.defineFlow(
             },
         });
         
-        return output || { response: "죄송합니다. 응답을 생성하는 데 문제가 발생했습니다. 잠시 후 다시 시도해주세요." };
+        const output = result.output;
+        
+        if (!output) {
+            return { response: "죄송합니다. AI가 유효한 응답을 생성하지 못했습니다. 다시 시도해주세요." };
+        }
+        
+        return output;
     } catch (error) {
         console.error("Chatbot flow error:", error);
         return { response: "죄송합니다. AI 서비스 연결에 실패했습니다. 네트워크 상태를 확인하거나 잠시 후 다시 시도해주세요." };

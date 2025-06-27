@@ -148,7 +148,10 @@ export default function AdminPage() {
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="googleai/gemini-1.5-flash-latest">
-                  Gemini 1.5 Flash (빠른 속도, 비용 효율적)
+                  Gemini 1.5 Flash (가장 빠른 속도, 무료 티어)
+                </SelectItem>
+                <SelectItem value="googleai/gemini-pro">
+                  Gemini Pro (표준, 안정적)
                 </SelectItem>
                 <SelectItem value="googleai/gemini-1.5-pro-latest">
                   Gemini 1.5 Pro (고성능, 유료)
