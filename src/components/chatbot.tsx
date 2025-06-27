@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, useRef, useEffect, startTransition } from 'react';
@@ -35,21 +34,16 @@ export function Chatbot({ consultants }: { consultants: Consultant[] }) {
   const [messages, setMessages] = useState<Message[]>([initialMessage]);
   const [isLoading, setIsLoading] = useState(false);
   const [inputValue, setInputValue] = useState('');
-  const scrollAreaRef = useRef<HTMLDivElement>(null);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
 
   useEffect(() => {
-    if (scrollAreaRef.current) {
-      scrollAreaRef.current.scrollTo({
-        top: scrollAreaRef.current.scrollHeight,
-        behavior: 'smooth',
-      });
-    }
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages, isLoading]);
 
   useEffect(() => {
     const lastMessage = messages[messages.length - 1];
-    if (inputRef.current && !isLoading && lastMessage.role === 'assistant') {
+    if (inputRef.current && !isLoading && lastMessage.role === 'assistant' && !lastMessage.recommendations) {
       inputRef.current.focus();
     }
   }, [messages, isLoading]);
@@ -129,8 +123,9 @@ export function Chatbot({ consultants }: { consultants: Consultant[] }) {
         <CardTitle className="font-headline text-2xl">AI 상담사 추천</CardTitle>
         <CardDescription className="text-white/70">당신의 고민에 가장 잘 맞는 상담사를 찾아드릴게요.</CardDescription>
       </CardHeader>
-      <CardContent className="p-0 flex-1 flex flex-col min-h-0">
-        <ScrollArea className="flex-1" ref={scrollAreaRef}>
+      
+      <CardContent className="p-0 flex-1 min-h-0">
+        <ScrollArea className="h-full">
           <div className="space-y-6 p-4 md:p-6">
             {messages.map((message) => (
               <div
@@ -211,36 +206,37 @@ export function Chatbot({ consultants }: { consultants: Consultant[] }) {
                   </div>
               </div>
             )}
+            <div ref={messagesEndRef} />
           </div>
         </ScrollArea>
-      
-        {showInput && (
-            <div className="border-t border-white/10 p-4 flex-shrink-0">
-                <form
-                    onSubmit={(e) => {
-                        e.preventDefault();
-                        handleSendMessage(inputValue);
-                    }}
-                    className="relative"
-                >
-                    <Textarea
-                        ref={inputRef}
-                        value={inputValue}
-                        onChange={(e) => setInputValue(e.target.value)}
-                        onKeyDown={handleKeyDown}
-                        placeholder="자세한 고민을 이야기해주세요..."
-                        className="bg-white/10 border-white/20 text-white placeholder:text-white/60 focus:ring-secondary min-h-[80px] resize-none pr-14"
-                        autoComplete="off"
-                        rows={3}
-                    />
-                    <Button type="submit" size="icon" className="bg-secondary hover:bg-secondary/90 flex-shrink-0 absolute right-3 bottom-3 h-9 w-9">
-                        <Send className="h-4 w-4" />
-                        <span className="sr-only">전송</span>
-                    </Button>
-                </form>
-            </div>
-        )}
       </CardContent>
+      
+      {showInput && (
+        <div className="border-t border-white/10 p-4 flex-shrink-0 bg-black/40 rounded-b-2xl">
+            <form
+                onSubmit={(e) => {
+                    e.preventDefault();
+                    handleSendMessage(inputValue);
+                }}
+                className="relative"
+            >
+                <Textarea
+                    ref={inputRef}
+                    value={inputValue}
+                    onChange={(e) => setInputValue(e.target.value)}
+                    onKeyDown={handleKeyDown}
+                    placeholder="자세한 고민을 이야기해주세요..."
+                    className="bg-white/10 border-white/20 text-white placeholder:text-white/60 focus:ring-secondary min-h-[80px] resize-none pr-14"
+                    autoComplete="off"
+                    rows={3}
+                />
+                <Button type="submit" size="icon" className="bg-secondary hover:bg-secondary/90 flex-shrink-0 absolute right-3 bottom-3 h-9 w-9">
+                    <Send className="h-4 w-4" />
+                    <span className="sr-only">전송</span>
+                </Button>
+            </form>
+        </div>
+      )}
     </Card>
   );
 }
