@@ -1,6 +1,6 @@
-import type { Consultant } from '@/types/consultant';
+import type { Consultant, Inquiry } from '@/types/consultant';
 
-export const consultants: Omit<Consultant, 'reviews' | 'posts'>[] = [
+export const consultants: Omit<Consultant, 'reviews' | 'posts' | 'inquiries'>[] = [
   { id: '1', name: '세라피나', phoneId: 1023, specialty: '타로', image: '/images/con1.png', rating: 4.9, reviewCount: 281, status: 'available', keywords: ['타로', '연애', '미래', '여성', '따뜻함', '프리미엄'], dataAiHint: 'woman mystic', price: 2500, bio: '달의 힘을 빌려 당신의 길을 밝히는 타로 마스터, 세라피나 문입니다. 섬세하고 따뜻한 리딩으로 마음의 안식처가 되어드릴게요.' },
   { id: '2', name: '오리온', phoneId: 2431, specialty: '점성술', image: '/images/con2.png', rating: 4.8, reviewCount: 194, status: 'available', keywords: ['점성술', '출생 차트', '궁합', '남성', '논리적', '합리적'], dataAiHint: 'man telescope', price: 2200, bio: '밤하늘의 별자리처럼, 당신의 인생에도 정해진 지도가 있습니다. 논리적이고 체계적인 점성술로 그 지도를 함께 읽어 나가요.' },
   { id: '3', name: '루나', phoneId: 387, specialty: '해몽', image: '/images/con3.png', rating: 4.9, reviewCount: 156, status: 'busy', keywords: ['해몽', '상징', '잠재의식', '여성', '신비주의', '프리미엄'], dataAiHint: 'woman sleeping', price: 2800, bio: '꿈은 당신의 무의식이 보내는 편지입니다. 꿈의 상징을 해석하여 당신의 내면이 하는 이야기에 귀 기울여보세요.' },
@@ -52,9 +52,41 @@ export const getConsultantById = (id: string): Consultant | undefined => {
     { id: '2', title: '타로카드가 말해주는 "재회"의 시그널', content: '헤어진 연인과의 재회를 고민하고 있나요? 타로카드의 특정 조합은 재회의 가능성을 암시하기도 합니다. 과연 어떤 카드들이 있을까요?', createdAt: '2024-05-02' },
   ];
 
+  const mockInquiries: Inquiry[] = [
+    {
+      id: '1',
+      title: '재물운에 대해 궁금합니다.',
+      author: '부자되고파',
+      createdAt: '2024-05-22',
+      content: '안녕하세요, 선생님. 제 전반적인 재물운의 흐름과 언제쯤 금전적으로 안정을 찾을 수 있을지 궁금해서 문의드립니다.',
+      isPrivate: false,
+      answer: {
+        content: '안녕하세요, 부자되고파 님. 문의주셔서 감사합니다. 전반적인 사주 흐름을 보았을 때...',
+        createdAt: '2024-05-23'
+      }
+    },
+    {
+      id: '2',
+      title: '비밀글입니다.',
+      author: '익명고객',
+      createdAt: '2024-05-21',
+      content: '이 내용은 상담사님만 보실 수 있습니다.',
+      isPrivate: true,
+    },
+    {
+      id: '3',
+      title: '연인과의 궁합이 궁금해요.',
+      author: '사랑꾼',
+      createdAt: '2024-05-19',
+      content: '최근에 만나는 사람이 있는데, 이 사람과의 궁합이 어떤지 자세히 알고 싶습니다. 생년월일은...',
+      isPrivate: false,
+    },
+  ];
+
   return {
     ...consultantData,
     reviews: mockReviews,
     posts: mockPosts,
+    inquiries: mockInquiries,
   };
 };

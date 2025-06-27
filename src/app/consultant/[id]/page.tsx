@@ -8,8 +8,9 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { Textarea } from '@/components/ui/textarea';
-import { Star, Phone, MessageSquarePlus, PenSquare, Wallet, ThumbsUp, Share2, MessageCircle } from 'lucide-react';
+import { Star, Phone, MessageSquarePlus, PenSquare, Wallet, ThumbsUp, Share2, MessageCircle, Lock, Unlock, CornerDownRight } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 
@@ -96,8 +97,9 @@ export default function ConsultantDetailPage() {
         {/* Right Content */}
         <div className="lg:col-span-2">
           <Tabs defaultValue="profile" className="w-full">
-            <TabsList className="grid w-full grid-cols-3">
+            <TabsList className="grid w-full grid-cols-4">
               <TabsTrigger value="profile">프로필</TabsTrigger>
+              <TabsTrigger value="inquiries">1:1 문의</TabsTrigger>
               <TabsTrigger value="reviews">고객 후기</TabsTrigger>
               <TabsTrigger value="posts">상담사 칼럼</TabsTrigger>
             </TabsList>
@@ -110,6 +112,82 @@ export default function ConsultantDetailPage() {
                 </CardHeader>
                 <CardContent className="prose prose-sm dark:prose-invert max-w-none">
                   <ReactMarkdown remarkPlugins={[remarkGfm]}>{consultant.bio}</ReactMarkdown>
+                </CardContent>
+              </Card>
+            </TabsContent>
+
+            {/* Inquiries Tab */}
+            <TabsContent value="inquiries" className="mt-6">
+              <Card>
+                <CardHeader>
+                  <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                    <div>
+                      <CardTitle>1:1 문의</CardTitle>
+                      <CardDescription>
+                        상담사에게 궁금한 점을 직접 문의하고 답변을 받아보세요.
+                      </CardDescription>
+                    </div>
+                    <Button variant="outline" asChild>
+                      <Link href={`/inquiry/${consultant.id}`}>
+                        <MessageSquarePlus className="mr-2" />
+                        1:1 문의하기
+                      </Link>
+                    </Button>
+                  </div>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  {consultant.inquiries.length > 0 ? (
+                    <Accordion type="single" collapsible className="w-full">
+                      {consultant.inquiries.map((inquiry, index) => (
+                        <AccordionItem value={`item-${index}`} key={inquiry.id}>
+                          <AccordionTrigger className="text-left hover:no-underline">
+                            <div className="flex items-center gap-4 flex-1">
+                              {inquiry.isPrivate ? (
+                                <Lock className="w-5 h-5 text-muted-foreground" />
+                              ) : (
+                                <Unlock className="w-5 h-5 text-primary" />
+                              )}
+                              <div className="flex-1">
+                                <p className="font-semibold">{inquiry.isPrivate ? '비밀글입니다.' : inquiry.title}</p>
+                                <div className="flex items-center gap-2 text-xs text-muted-foreground mt-1">
+                                  <span>{inquiry.author}</span>
+                                  <span>·</span>
+                                  <span>{inquiry.createdAt}</span>
+                                </div>
+                              </div>
+                              {!inquiry.answer && !inquiry.isPrivate && <Badge variant="outline">답변대기</Badge>}
+                              {inquiry.answer && !inquiry.isPrivate && <Badge variant="secondary" className="text-secondary-foreground">답변완료</Badge>}
+                            </div>
+                          </AccordionTrigger>
+                          <AccordionContent className="pl-12 pr-4">
+                            {inquiry.isPrivate ? (
+                              <p className="text-muted-foreground italic">
+                                비밀글은 작성자와 상담사만 열람할 수 있습니다.
+                              </p>
+                            ) : (
+                              <div className="space-y-4">
+                                <p className="whitespace-pre-wrap">{inquiry.content}</p>
+                                {inquiry.answer && (
+                                  <div className="mt-4 p-4 bg-muted/50 rounded-md border">
+                                    <h4 className="font-semibold text-primary flex items-center gap-2">
+                                       <CornerDownRight className="w-4 h-4" />
+                                      {consultant.name}님의 답변
+                                    </h4>
+                                    <p className="text-xs text-muted-foreground mt-1 mb-2">{inquiry.answer.createdAt}</p>
+                                    <p className="whitespace-pre-wrap">{inquiry.answer.content}</p>
+                                  </div>
+                                )}
+                              </div>
+                            )}
+                          </AccordionContent>
+                        </AccordionItem>
+                      ))}
+                    </Accordion>
+                  ) : (
+                    <div className="text-center py-8 text-muted-foreground">
+                      <p>아직 등록된 1:1 문의가 없습니다.</p>
+                    </div>
+                  )}
                 </CardContent>
               </Card>
             </TabsContent>

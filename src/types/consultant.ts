@@ -8,10 +8,23 @@ export type Review = {
 };
 
 export type Post = {
-  id: string;
+  id:string;
   title: string;
   content: string;
   createdAt: string;
+};
+
+export type Inquiry = {
+  id: string;
+  title: string;
+  author: string;
+  createdAt: string;
+  content: string;
+  isPrivate: boolean;
+  answer?: {
+      content: string;
+      createdAt: string;
+  }
 };
 
 export type Consultant = {
@@ -29,4 +42,6 @@ export type Consultant = {
   bio: string;
   reviews: Review[];
   posts: Post[];
+  inquiries: Inquiry[];
 };
+
