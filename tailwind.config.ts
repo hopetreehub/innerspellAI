@@ -6,6 +6,7 @@ export default {
     './src/pages/**/*.{js,ts,jsx,tsx,mdx}',
     './src/components/**/*.{js,ts,jsx,tsx,mdx}',
     './src/app/**/*.{js,ts,jsx,tsx,mdx}',
+    './src/features/**/*.{js,ts,jsx,tsx,mdx}',
   ],
   theme: {
     container: {
@@ -87,24 +88,12 @@ export default {
             height: '0',
           },
         },
-        'fade-in-up': {
-          'from': { opacity: '0', transform: 'translateY(20px)' },
-          'to': { opacity: '1', transform: 'translateY(0)' },
-        },
-        'gradient-pulse': {
-          '0%, 100%': { opacity: '0.7' },
-          '50%': { opacity: '0.9' },
-        }
       },
       animation: {
         'accordion-down': 'accordion-down 0.2s ease-out',
         'accordion-up': 'accordion-up 0.2s ease-out',
-        'fade-in-up': 'fade-in-up 0.8s ease-out forwards',
-        'gradient-pulse': 'gradient-pulse 8s ease-in-out infinite',
       },
     },
   },
   plugins: [require('tailwindcss-animate')],
 } satisfies Config;
-
-    
