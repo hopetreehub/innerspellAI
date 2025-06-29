@@ -1,14 +1,14 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import type { Consultant } from '@/types/consultant';
 import { Button } from '@/components/ui/button';
 import { Pagination, PaginationContent, PaginationItem, PaginationPrevious, PaginationLink, PaginationNext } from '@/components/ui/pagination';
 import { ConsultantCard } from './consultant-card';
 
-const specialties = ['전체', ...Array.from(new Set(consultants.map(c => c.specialty)))];
-
 export function ConsultantBrowser({ consultants }: { consultants: Omit<Consultant, 'reviews' | 'posts' | 'inquiries' | 'satisfaction' | 'reviewSummary'>[] }) {
+  const specialties = useMemo(() => ['전체', ...Array.from(new Set(consultants.map(c => c.specialty)))], [consultants]);
+
   const [selectedSpecialty, setSelectedSpecialty] = useState('전체');
   const [currentPage, setCurrentPage] = useState(1);
   const consultantsPerPage = 24;
