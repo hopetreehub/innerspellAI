@@ -18,7 +18,7 @@ export function ConsultantCard({ consultant }: { consultant: Consultant }) {
 
   return (
     <Link href={`/consultant/${consultant.id}`} className="block group">
-      <Card className="w-full overflow-hidden transition-all group-hover:shadow-primary/20 group-hover:shadow-lg group-hover:-translate-y-1 flex h-full">
+      <Card className="w-full overflow-hidden transition-all group-hover:shadow-primary/20 group-hover:shadow-lg group-hover:-translate-y-1 flex">
         <div className="relative w-1/3 aspect-[4/5]">
           <Image
             src={consultant.image}
@@ -36,7 +36,7 @@ export function ConsultantCard({ consultant }: { consultant: Consultant }) {
             <span>{consultant.status === 'available' ? '상담가능' : '상담중'}</span>
           </div>
         </div>
-        <div className="p-3 flex flex-col justify-between flex-1 w-2/3">
+        <div className="p-3 flex flex-col justify-between w-2/3">
           <div>
              <h3 className="font-headline text-lg font-semibold leading-tight">
               {consultant.name}
