@@ -1,64 +1,380 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { cn } from '@/lib/utils';
 import Image from 'next/image';
-import { getDailySpell } from '@/ai/flows/daily-spell-flow';
-import { Card, CardContent } from '@/components/ui/card';
-import { Skeleton } from '@/components/ui/skeleton';
+import Link from 'next/link';
+import { notFound, useParams } from 'next/navigation';
+import { getConsultantById } from '@/lib/consultants';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
+import { Textarea } from '@/components/ui/textarea';
+import { Star, Phone, MessageSquarePlus, PenSquare, Wallet, ThumbsUp, Share2, MessageCircle, Lock, Unlock, CornerDownRight, Gift } from 'lucide-react';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
+import { Progress } from '@/components/ui/progress';
+import { Separator } from '@/components/ui/separator';
 
-export function DailySpellCard() {
-  const [isFlipped, setIsFlipped] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
-  const [spell, setSpell] = useState({ title: '오늘의 스펠카드', description: '오늘의 메시지를 보려면 카드를 뒤집어주세요.' });
+function SummaryBar({ label, value, total }: { label: string, value: number, total: number }) {
+  const percentage = total > 0 ? (value / total) * 100 : 0;
+  return (
+    <div className="flex items-center gap-4 text-sm">
+      <span className="w-28 shrink-0 text-muted-foreground">{label}</span>
+      <Progress value={percentage} className="h-2 flex-1 bg-muted" />
+      <span className="w-8 shrink-0 text-right font-medium text-foreground">{value}</span>
+    </div>
+  );
+}
 
-  useEffect(() => {
-    async function fetchSpell() {
-      setIsLoading(true);
-      try {
-        const result = await getDailySpell();
-        setSpell(result);
-      } catch (error) {
-        console.error("Failed to fetch daily spell:", error);
-        setSpell({ title: '오류', description: '메시지를 불러오는 데 실패했습니다. 다시 시도해주세요.' });
-      } finally {
-        setIsLoading(false);
-      }
-    }
-    fetchSpell();
-  }, []);
+
+export default function ConsultantDetailPage() {
+  const params = useParams();
+  const id = typeof params.id === 'string' ? params.id : '';
+  const consultant = getConsultantById(id);
+
+  if (!consultant) {
+    notFound();
+  }
+  
+  const totalStyleReviews = consultant.reviewSummary ? Object.values(consultant.reviewSummary.style).reduce((a, b) => a + b, 0) : 0;
+  const totalFieldReviews = consultant.reviewSummary ? Object.values(consultant.reviewSummary.field).reduce((a, b) => a + b, 0) : 0;
 
   return (
-    <div className="w-full aspect-[16/9] [perspective:1000px] cursor-pointer" onClick={() => setIsFlipped(!isFlipped)}>
-      <div
-        className={cn('relative w-full h-full transition-transform duration-700 [transform-style:preserve-3d]', { '[transform:rotateY(180deg)]': isFlipped })}
-      >
-        {/* Card Front */}
-        <div className="absolute w-full h-full [backface-visibility:hidden] overflow-hidden rounded-xl shadow-lg">
-          <Image src="https://placehold.co/800x450.png" alt="신비로운 배경" fill className="object-cover" data-ai-hint="mystical nebula" />
-          <div className="absolute inset-0 bg-gradient-to-br from-purple-900/50 via-indigo-900/50 to-black/70 flex flex-col justify-center items-center text-center p-8 text-white">
-            <h3 className="font-headline text-3xl md:text-4xl font-bold">오늘의 스펠카드</h3>
-            <p className="mt-2 text-white/80">카드를 클릭하여 오늘의 메시지를 확인하세요.</p>
-          </div>
+    <div className="container mx-auto px-4 py-8 md:py-12">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        {/* Left Sidebar */}
+        <div className="lg:col-span-1 space-y-6">
+          <Card className="overflow-hidden">
+            <div className="relative w-full aspect-[4/5]">
+              <Image
+                src={consultant.image}
+                alt={consultant.name}
+                fill
+                className="object-cover"
+                priority
+                data-ai-hint={consultant.dataAiHint}
+              />
+            </div>
+            <CardContent className="p-4">
+              <h1 className="font-headline text-2xl font-bold">{consultant.name}</h1>
+              <p className="text-md text-muted-foreground font-semibold">[{consultant.phoneId}] {consultant.specialty}</p>
+              <div className="flex items-center gap-1.5 text-sm text-muted-foreground mt-2">
+                <Wallet className="w-4 h-4"/>
+                <span>30초당 {consultant.price.toLocaleString()}원</span>
+             </div>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardContent className="p-4 space-y-3">
+              <Button size="lg" className="w-full text-lg h-12" asChild>
+                <Link href={`tel:060-700-1234,${consultant.phoneId}`}>
+                  <Phone className="mr-2"/>
+                  전화상담
+                </Link>
+              </Button>
+              <Button size="lg" variant="secondary" className="w-full text-lg h-12" asChild>
+                 <Link href={`/inquiry/${consultant.id}`}>
+                    <MessageSquarePlus className="mr-2"/>
+                    1:1 문의
+                 </Link>
+              </Button>
+            </CardContent>
+          </Card>
+          <Card>
+             <CardHeader>
+                <CardTitle className="text-lg">전문분야</CardTitle>
+            </CardHeader>
+            <CardContent>
+                <div className="flex flex-wrap gap-2">
+                    {consultant.keywords.map(keyword => (
+                        <Badge key={keyword} variant="outline" className="text-md px-3 py-1">{keyword}</Badge>
+                    ))}
+                </div>
+            </CardContent>
+          </Card>
         </div>
 
-        {/* Card Back */}
-        <div className="absolute w-full h-full [backface-visibility:hidden] [transform:rotateY(180deg)] overflow-hidden rounded-xl shadow-lg">
-           <Image src="https://placehold.co/800x450.png" alt="천상의 별 배경" fill className="object-cover" data-ai-hint="celestial star" />
-           <div className="absolute inset-0 bg-black/50 flex flex-col justify-center items-center text-center p-8 text-white backdrop-blur-sm">
-            {isLoading ? (
-              <div className="space-y-3 max-w-md w-full">
-                <Skeleton className="h-8 w-2/3 mx-auto" />
-                <Skeleton className="h-4 w-full" />
-                <Skeleton className="h-4 w-5/6 mx-auto" />
-              </div>
-            ) : (
-              <>
-                <h3 className="font-headline text-3xl md:text-4xl font-bold">{spell.title}</h3>
-                <p className="mt-4 text-lg text-white/90 max-w-md">{spell.description}</p>
-              </>
-            )}
-          </div>
+        {/* Right Content */}
+        <div className="lg:col-span-2">
+          <Tabs defaultValue="profile" className="w-full">
+            <TabsList className="grid w-full grid-cols-4">
+              <TabsTrigger value="profile">프로필</TabsTrigger>
+              <TabsTrigger value="inquiries">1:1 문의</TabsTrigger>
+              <TabsTrigger value="reviews">고객 후기</TabsTrigger>
+              <TabsTrigger value="posts">상담사 칼럼</TabsTrigger>
+            </TabsList>
+
+            {/* Profile Tab */}
+            <TabsContent value="profile" className="mt-6">
+              <Card>
+                <CardHeader>
+                  <CardTitle>상담사 소개</CardTitle>
+                </CardHeader>
+                <CardContent className="prose prose-sm dark:prose-invert max-w-none">
+                  <ReactMarkdown remarkPlugins={[remarkGfm]}>{consultant.bio}</ReactMarkdown>
+                </CardContent>
+              </Card>
+            </TabsContent>
+
+            {/* Inquiries Tab */}
+            <TabsContent value="inquiries" className="mt-6">
+              <Card>
+                <CardHeader>
+                  <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                    <div>
+                      <CardTitle>1:1 문의</CardTitle>
+                      <CardDescription>
+                        상담사에게 궁금한 점을 직접 문의하고 답변을 받아보세요.
+                      </CardDescription>
+                    </div>
+                    <Button variant="outline" asChild>
+                      <Link href={`/inquiry/${consultant.id}`}>
+                        <MessageSquarePlus className="mr-2" />
+                        1:1 문의하기
+                      </Link>
+                    </Button>
+                  </div>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  {consultant.inquiries.length > 0 ? (
+                    <Accordion type="single" collapsible className="w-full">
+                      {consultant.inquiries.map((inquiry, index) => (
+                        <AccordionItem value={`item-${index}`} key={inquiry.id}>
+                          <AccordionTrigger className="text-left hover:no-underline">
+                            <div className="flex items-center gap-4 flex-1">
+                              {inquiry.isPrivate ? (
+                                <Lock className="w-5 h-5 text-muted-foreground" />
+                              ) : (
+                                <Unlock className="w-5 h-5 text-primary" />
+                              )}
+                              <div className="flex-1">
+                                <p className="font-semibold">{inquiry.isPrivate ? '비밀글입니다.' : inquiry.title}</p>
+                                <div className="flex items-center gap-2 text-xs text-muted-foreground mt-1">
+                                  <span>{inquiry.author}</span>
+                                  <span>·</span>
+                                  <span>{inquiry.createdAt}</span>
+                                </div>
+                              </div>
+                              {!inquiry.answer && !inquiry.isPrivate && <Badge variant="outline">답변대기</Badge>}
+                              {inquiry.answer && !inquiry.isPrivate && <Badge variant="secondary" className="text-secondary-foreground">답변완료</Badge>}
+                            </div>
+                          </AccordionTrigger>
+                          <AccordionContent className="pl-12 pr-4">
+                            {inquiry.isPrivate ? (
+                              <p className="text-muted-foreground italic">
+                                비밀글은 작성자와 상담사만 열람할 수 있습니다.
+                              </p>
+                            ) : (
+                              <div className="space-y-4">
+                                <p className="whitespace-pre-wrap">{inquiry.content}</p>
+                                {inquiry.answer && (
+                                  <div className="mt-4 p-4 bg-muted/50 rounded-md border">
+                                    <h4 className="font-semibold text-primary flex items-center gap-2">
+                                       <CornerDownRight className="w-4 h-4" />
+                                      {consultant.name}님의 답변
+                                    </h4>
+                                    <p className="text-xs text-muted-foreground mt-1 mb-2">{inquiry.answer.createdAt}</p>
+                                    <p className="whitespace-pre-wrap">{inquiry.answer.content}</p>
+                                  </div>
+                                )}
+                              </div>
+                            )}
+                          </AccordionContent>
+                        </AccordionItem>
+                      ))}
+                    </Accordion>
+                  ) : (
+                    <div className="text-center py-8 text-muted-foreground">
+                      <p>아직 등록된 1:1 문의가 없습니다.</p>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            </TabsContent>
+            
+            {/* Reviews Tab */}
+            <TabsContent value="reviews" className="mt-6">
+                <Card>
+                    <CardHeader>
+                        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                            <div>
+                                <CardTitle>고객 후기</CardTitle>
+                                <CardDescription>실제 상담을 받은 고객님들의 생생한 후기입니다.</CardDescription>
+                            </div>
+                            <Button variant="outline" asChild>
+                                <Link href={`/review/new/${consultant.id}`}>
+                                    <PenSquare className="mr-2"/>후기 작성하기
+                                </Link>
+                            </Button>
+                        </div>
+                    </CardHeader>
+                    <CardContent className="space-y-8">
+                       {/* Review Summary Section */}
+                        <div className="space-y-6">
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <Card className="p-4 bg-muted/30 border-0">
+                                <CardDescription>총 상담 후기</CardDescription>
+                                <CardTitle className="text-4xl">{consultant.reviewCount}<span className="text-lg font-medium ml-1">건</span></CardTitle>
+                            </Card>
+                            <Card className="p-4 bg-muted/30 border-0">
+                                <CardDescription>5점 만족도</CardDescription>
+                                <div className="flex items-baseline gap-2">
+                                <CardTitle className="text-4xl">{consultant.satisfaction || 95}<span className="text-lg font-medium ml-1">%</span></CardTitle>
+                                <div className="flex items-center">
+                                    <Star className="w-4 h-4 text-secondary fill-secondary" />
+                                </div>
+                                </div>
+                            </Card>
+                            </div>
+
+                            <div className="bg-muted/30 rounded-lg p-3 text-center text-sm text-primary flex items-center justify-center gap-2 font-semibold">
+                                <Gift className="w-4 h-4 text-yellow-500"/>
+                                후기 작성 시 코인을 선물로 드립니다!
+                            </div>
+                            
+                            <Accordion type="single" collapsible className="w-full !mt-2">
+                              <AccordionItem value="item-1" className="border-b-0">
+                                <AccordionTrigger className="text-sm font-semibold hover:no-underline justify-center text-muted-foreground py-2">
+                                  🎁 자세한 후기 혜택 안내
+                                </AccordionTrigger>
+                                <AccordionContent className="text-xs text-muted-foreground space-y-4 pt-2 p-4 bg-muted/30 rounded-md">
+                                  <p>
+                                    이너스펠 AI는 신뢰도 높은 후기 문화를 만들기 위해 실제 상담을 이용한 회원님만 후기를 작성할 수 있도록 하고 있습니다.
+                                  </p>
+                            
+                                  <div className="space-y-2">
+                                    <h4 className="font-semibold text-foreground">후기 작성 혜택</h4>
+                                    <ul className="list-disc pl-4 space-y-1">
+                                      <li><strong>일반 후기 (30자 이상):</strong> 500 코인 지급</li>
+                                      <li><strong>포토 후기 (사진 첨부):</strong> 1,000 코인 지급</li>
+                                      <li><strong>베스트 후기 (매월 선정):</strong> 10,000 코인 지급</li>
+                                    </ul>
+                                    <p className="pt-1">
+                                      <strong>베스트 후기 선정 안내:</strong> 상담을 통해 어떤 고민이 어떻게 해결되었는지, 상담사님의 어떤 점이 좋았는지 구체적이고 진솔하게 작성해주시면 선정 확률이 높아집니다. 다른 분들에게 도움이 될 수 있는 후기를 기다립니다.
+                                    </p>
+                                  </div>
+                            
+                                  <div className="space-y-2">
+                                    <h4 className="font-semibold text-foreground">후기 관리 규정</h4>
+                                    <p>
+                                      이너스펠 AI는 고객님의 소중한 후기를 가감 없이 게시하는 것을 원칙으로 합니다. 단, 건전한 커뮤니티 조성을 위해 아래에 해당하는 경우 관리자 확인 후 비공개 처리되거나 삭제될 수 있습니다.
+                                    </p>
+                                    <ol className="list-decimal pl-4 space-y-1">
+                                      <li>상담 내용과 무관한 게시물</li>
+                                      <li>특정인에 대한 욕설, 비방, 명예를 훼손하는 내용</li>
+                                      <li>연락처, 이메일 등 개인정보가 포함된 경우</li>
+                                      <li>동일한 상담에 대해 반복적으로 작성된 경우</li>
+                                      <li>타 서비스 홍보 및 광고성 내용</li>
+                                      <li>기타 법령에 위배되거나 미풍양속을 해치는 내용</li>
+                                    </ol>
+                                  </div>
+                                </AccordionContent>
+                              </AccordionItem>
+                            </Accordion>
+
+
+                            {consultant.reviewSummary && (
+                            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 pt-4">
+                                <div className="space-y-4">
+                                  <h4 className="font-semibold">상담스타일 😊</h4>
+                                  <div className="space-y-3">
+                                    {Object.entries(consultant.reviewSummary.style).map(([label, value]) => (
+                                      <SummaryBar key={label} label={label} value={value} total={totalStyleReviews} />
+                                    ))}
+                                  </div>
+                                </div>
+                                <div className="space-y-4">
+                                  <h4 className="font-semibold">상담분야 💖</h4>
+                                  <div className="space-y-3">
+                                    {Object.entries(consultant.reviewSummary.field).map(([label, value]) => (
+                                      <SummaryBar key={label} label={label} value={value} total={totalFieldReviews} />
+                                    ))}
+                                  </div>
+                                </div>
+                            </div>
+                            )}
+                        </div>
+
+                       <Separator />
+
+                       {/* Existing Reviews List */}
+                       <div className="space-y-6">
+                           <h3 className="font-semibold text-lg">전체 후기 ({consultant.reviewCount}개)</h3>
+                           {consultant.reviews.map(review => (
+                             <div key={review.id} className="space-y-2 border-b border-border pb-4 last:border-b-0 last:pb-0">
+                                <div className="flex items-center justify-between">
+                                    <div className="flex items-center gap-2">
+                                        <h4 className="font-semibold">{review.author}</h4>
+                                        <div className="flex items-center">
+                                        {[...Array(5)].map((_, i) => (
+                                          <Star key={i} className={`w-4 h-4 ${i < review.rating ? 'text-secondary fill-secondary' : 'text-muted-foreground/30'}`} />
+                                        ))}
+                                        </div>
+                                    </div>
+                                    <span className="text-xs text-muted-foreground">{review.createdAt}</span>
+                                </div>
+                                <p className="text-sm text-foreground/90 bg-muted/50 p-3 rounded-md">{review.comment}</p>
+                             </div>
+                           ))}
+                       </div>
+                    </CardContent>
+                </Card>
+            </TabsContent>
+
+            {/* Posts Tab */}
+            <TabsContent value="posts" className="mt-6">
+                <Card>
+                     <CardHeader>
+                        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                            <div>
+                               <CardTitle>상담사 칼럼</CardTitle>
+                               <CardDescription>{consultant.name}님이 직접 작성한 칼럼입니다.</CardDescription>
+                            </div>
+                            <Button variant="outline" asChild>
+                                <Link href="/posts/new">
+                                    <PenSquare className="mr-2"/>칼럼 작성하기
+                                </Link>
+                            </Button>
+                        </div>
+                    </CardHeader>
+                    <CardContent className="space-y-8">
+                       {consultant.posts.map(post => (
+                         <div key={post.id} className="border-b border-border pb-6 last:border-none last:pb-0">
+                            <h4 className="font-semibold text-xl hover:text-primary transition-colors cursor-pointer">{post.title}</h4>
+                            <p className="text-sm text-muted-foreground mt-1">{post.createdAt}</p>
+                            <p className="text-base text-foreground/80 mt-4 leading-relaxed">{post.content}</p>
+
+                            <div className="flex items-center gap-2 mt-4 pt-4 border-t">
+                               <Button variant="ghost" size="sm"><ThumbsUp className="mr-2"/>공감 (12)</Button>
+                               <Button variant="ghost" size="sm"><Share2 className="mr-2"/>공유</Button>
+                            </div>
+
+                            <div className="mt-6 space-y-4">
+                                <h5 className="font-semibold flex items-center gap-2"><MessageCircle className="w-4 h-4" /> 댓글 (2)</h5>
+                                {/* Existing Comments */}
+                                <div className="space-y-3 text-sm">
+                                    <div className="bg-muted/50 p-3 rounded-md">
+                                        <p className="font-semibold">사용자1</p>
+                                        <p className="text-foreground/80">좋은 글 감사합니다!</p>
+                                    </div>
+                                    <div className="bg-muted/50 p-3 rounded-md">
+                                        <p className="font-semibold">사용자2</p>
+                                        <p className="text-foreground/80">많은 도움이 되었습니다.</p>
+                                    </div>
+                                </div>
+                                {/* New Comment Form */}
+                                <div className="flex items-start gap-2">
+                                   <Textarea placeholder="댓글을 입력하세요..." className="min-h-[60px]" />
+                                   <Button>등록</Button>
+                                </div>
+                            </div>
+                         </div>
+                       ))}
+                    </CardContent>
+                </Card>
+            </TabsContent>
+          </Tabs>
         </div>
       </div>
     </div>

@@ -1,13 +1,37 @@
 import type { Metadata } from 'next';
 import './globals.css';
-import { AppHeader } from '@/components/layout/header';
-import { AppFooter } from '@/components/layout/footer';
+import { AppHeader } from '@/features/layout/header';
+import { AppFooter } from '@/features/layout/footer';
 import { Toaster } from "@/components/ui/toaster";
 import { ThemeProvider } from '@/components/theme-provider';
 
 export const metadata: Metadata = {
-  title: '이너스펠 AI',
-  description: '당신의 내면과 숨겨진 이야기를 연결하는 신뢰할 수 있는 영적 허브입니다.',
+  title: {
+    template: '%s | 이너스펠 AI',
+    default: '이너스펠 AI - 당신의 영적 길잡이',
+  },
+  description: 'AI 기술로 당신의 내면과 숨겨진 이야기를 연결하는 신뢰할 수 있는 영적 허브입니다. 최고의 상담사를 만나보세요.',
+  openGraph: {
+    title: '이너스펠 AI',
+    description: '당신의 내면과 숨겨진 이야기를 연결하는 신뢰할 수 있는 영적 허브입니다.',
+    url: 'https://innerspell.ai', // Replace with actual URL
+    siteName: 'Innerspell AI',
+    images: [
+      {
+        url: 'https://innerspell.ai/og-image.png', // Replace with actual OG image URL
+        width: 1200,
+        height: 630,
+      },
+    ],
+    locale: 'ko_KR',
+    type: 'website',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: '이너스펠 AI',
+    description: 'AI 기술로 당신의 내면과 숨겨진 이야기를 연결합니다.',
+    images: ['https://innerspell.ai/og-image.png'], // Replace with actual OG image URL
+  },
 };
 
 export default function RootLayout({
@@ -26,7 +50,6 @@ export default function RootLayout({
         <ThemeProvider
           attribute="class"
           defaultTheme="dark"
-          enableSystem
           disableTransitionOnChange
         >
           <div className="relative flex min-h-screen flex-col">
@@ -40,5 +63,3 @@ export default function RootLayout({
     </html>
   );
 }
-
-    

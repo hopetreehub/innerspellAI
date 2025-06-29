@@ -54,6 +54,7 @@ export default function ConsultantDetailPage() {
                 fill
                 className="object-cover"
                 priority
+                data-ai-hint={consultant.dataAiHint}
               />
             </div>
             <CardContent className="p-4">

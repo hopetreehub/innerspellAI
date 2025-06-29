@@ -1,5 +1,5 @@
 
-import { DailySpellCard } from '@/components/daily-spell-card';
+import { DailySpellCard } from '@/features/content/components/daily-spell-card';
 
 export default function ContentPage() {
   return (
